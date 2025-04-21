@@ -1,5 +1,5 @@
 streamlit
 pulp
 networkx
-matplotlib.pyplot
-qrcode
+matplotlib
+"qrcode"
