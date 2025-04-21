@@ -1,0 +1,32 @@
+{
+  "suppliers": [
+    {
+      "id": 1,
+      "name": "Aylin Hanım",
+      "inputs": [],
+      "outputs": ["A"],
+      "capacity": 170,
+      "cost": 10.0,
+      "distance": 15.0,
+      "time": 5.0
+    },
+    {
+      "id": 2,
+      "name": "Zeynep Hanım",
+      "inputs": [],
+      "outputs": ["A"],
+      "capacity": 130,
+      "cost": 12.0,
+      "distance": 20.0,
+      "time": 6.0
+    }
+  ],
+  "buyers": [
+    {
+      "id": 1,
+      "name": "Alıcı",
+      "demand": 300,
+      "required_inputs": ["A"]
+    }
+  ]
+}
