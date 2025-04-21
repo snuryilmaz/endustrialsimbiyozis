@@ -1,6 +1,6 @@
 # Endüstriyel Simbiyozis
 
-Bu proje, endüstriyel simbiyozis için optimizasyon modellerini oluşturmak ve çözmek amacıyla geliştirilmiştir.
+Bu proje, KTÜ Endüstri Mühendisliği öğrencileri tarafından Trabzon/Arsin OSB'de endüstriyel simbiyoz kapsamında Alıcı ve Satıcı firmaları eşleştirici bir arayüz oluşturmak için tasarlanmıştır. 
 
 ## Gereksinimler
 
