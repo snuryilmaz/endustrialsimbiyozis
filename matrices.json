@@ -1,0 +1,17 @@
+{
+  "distance_matrix": {
+    "Buyer": {"Firma 1": 50, "Firma 2": 30, "Firma 3": 70, "Firma 4": 40, "Firma 5": 60, "Firma 6": 80, "Firma 7": 90, "Firma 8": 20},
+    "Firma 1": {"Buyer": 50}, "Firma 2": {"Buyer": 30}, "Firma 3": {"Buyer": 70}, "Firma 4": {"Buyer": 40},
+    "Firma 5": {"Buyer": 60}, "Firma 6": {"Buyer": 80}, "Firma 7": {"Buyer": 90}, "Firma 8": {"Buyer": 20}
+  },
+  "time_matrix": {
+    "Buyer": {"Firma 1": 5, "Firma 2": 3, "Firma 3": 7, "Firma 4": 4, "Firma 5": 6, "Firma 6": 8, "Firma 7": 9, "Firma 8": 2},
+    "Firma 1": {"Buyer": 5}, "Firma 2": {"Buyer": 3}, "Firma 3": {"Buyer": 7}, "Firma 4": {"Buyer": 4},
+    "Firma 5": {"Buyer": 6}, "Firma 6": {"Buyer": 8}, "Firma 7": {"Buyer": 9}, "Firma 8": {"Buyer": 2}
+  },
+  "cost_matrix": {
+    "Buyer": {"Firma 1": 150, "Firma 2": 100, "Firma 3": 200, "Firma 4": 120, "Firma 5": 180, "Firma 6": 250, "Firma 7": 220, "Firma 8": 190},
+    "Firma 1": {"Buyer": 150}, "Firma 2": {"Buyer": 100}, "Firma 3": {"Buyer": 200}, "Firma 4": {"Buyer": 120},
+    "Firma 5": {"Buyer": 180}, "Firma 6": {"Buyer": 250}, "Firma 7": {"Buyer": 220}, "Firma 8": {"Buyer": 190}
+  }
+}
