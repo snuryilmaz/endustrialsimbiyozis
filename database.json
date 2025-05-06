@@ -1,32 +1,12 @@
 {
-  "suppliers": [
-    {
-      "id": 1,
-      "name": "Aylin Hanım",
-      "inputs": [],
-      "outputs": ["A"],
-      "capacity": 170,
-      "cost": 10.0,
-      "distance": 15.0,
-      "time": 5.0
-    },
-    {
-      "id": 2,
-      "name": "Zeynep Hanım",
-      "inputs": [],
-      "outputs": ["A"],
-      "capacity": 130,
-      "cost": 12.0,
-      "distance": 20.0,
-      "time": 6.0
+    "distance_matrix": {
+        "Firma 1": {"Firma 1": 0, "Firma 2": 35, "Firma 3": 78, "Firma 4": 90, "Firma 5": 55, "Firma 6": 22, "Firma 7": 44, "Firma 8": 88},
+        "Firma 2": {"Firma 1": 35, "Firma 2": 0, "Firma 3": 65, "Firma 4": 47, "Firma 5": 99, "Firma 6": 53, "Firma 7": 28, "Firma 8": 40},
+        "Firma 3": {"Firma 1": 78, "Firma 2": 65, "Firma 3": 0, "Firma 4": 33, "Firma 5": 76, "Firma 6": 85, "Firma 7": 19, "Firma 8": 72},
+        "Firma 4": {"Firma 1": 90, "Firma 2": 47, "Firma 3": 33, "Firma 4": 0, "Firma 5": 60, "Firma 6": 70, "Firma 7": 50, "Firma 8": 20},
+        "Firma 5": {"Firma 1": 55, "Firma 2": 99, "Firma 3": 76, "Firma 4": 60, "Firma 5": 0, "Firma 6": 88, "Firma 7": 34, "Firma 8": 12},
+        "Firma 6": {"Firma 1": 22, "Firma 2": 53, "Firma 3": 85, "Firma 4": 70, "Firma 5": 88, "Firma 6": 0, "Firma 7": 58, "Firma 8": 42},
+        "Firma 7": {"Firma 1": 44, "Firma 2": 28, "Firma 3": 19, "Firma 4": 50, "Firma 5": 34, "Firma 6": 58, "Firma 7": 0, "Firma 8": 67},
+        "Firma 8": {"Firma 1": 88, "Firma 2": 40, "Firma 3": 72, "Firma 4": 20, "Firma 5": 12, "Firma 6": 42, "Firma 7": 67, "Firma 8": 0}
     }
-  ],
-  "buyers": [
-    {
-      "id": 1,
-      "name": "Alıcı",
-      "demand": 300,
-      "required_inputs": ["A"]
-    }
-  ]
 }
