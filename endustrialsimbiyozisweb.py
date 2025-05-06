@@ -140,5 +140,5 @@ qr.make(fit=True)
 img = qr.make_image(fill_color="black", back_color="white")
 img.save("qrcode.png")
 
-st.image("qrcode.png", caption="Bu QR kodu tarayarak siteye erişin!")
+st.image("qrcode.png", caption="Bu QR kodu tarayarak siteye erişin!", use_column_width=True)
 st.write(f"Erişim için URL: {streamlit_url}")
