@@ -16,7 +16,7 @@ sure_matrisi = pd.DataFrame(matrisler["time_matrix"])
 maliyet_matrisi = pd.DataFrame(matrisler["cost_matrix"])
 
 # Streamlit URL (Yerli ağ için kendi IP adresinizi yazın)
-streamlit_url = "http://192.168.1.10:8501"
+streamlit_url = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
 
 # Optimizasyon modeli oluşturma fonksiyonu
 def optimizasyon_modeli_olustur(optimizasyon_amaci, alici_talebi, satici_verileri):
@@ -141,7 +141,7 @@ if st.sidebar.button("Optimizasyonu Çalıştır"):
         st.write(f"Toplam Süre: {toplam_sure} saat")
         st.write(f"Toplam Taşınacak Miktar: {alici_talebi} birim")
     else:
-        st.error("Optimum çözüm bulunamadı.")
+        st.error("Aranılan nitelikte satıcı bulunamadı !!! ")
 
 # QR kod oluştur ve göster
 qr = qrcode.QRCode(
