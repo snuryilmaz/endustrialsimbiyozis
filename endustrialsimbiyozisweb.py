@@ -80,7 +80,7 @@ st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 # Sol Şeride Kullanıcı Girdileri
 st.sidebar.header("Kullanıcı Bilgileri")
 name = st.sidebar.text_input("Adınız Soyadınız", "")
-company_name = st.sidebar.text_input("Şirket İsmi", "")
+company_name = st.sidebar.text_input("Şirket Adı", "")
 sector = st.sidebar.selectbox(
     "Şirket Sektörü",
     ["", "Demir-Çelik", "Plastik Enjeksiyon", "Makine İmalatı"],  # Boş seçenek varsayılan
@@ -132,7 +132,7 @@ if st.sidebar.button("Optimizasyonu Çalıştır"):
 qr = qrcode.QRCode(
     version=1,
     error_correction=qrcode.constants.ERROR_CORRECT_L,
-    box_size=10,
+    box_size=5,
     border=4,
 )
 qr.add_data(streamlit_url)
