@@ -4,6 +4,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import qrcode
 from PIL import Image
+import json
+import random
+import pandas as pd
 
 # Streamlit URL (Yerel ağ için IP adresinizi yazın)
 streamlit_url = "http://192.168.1.10:8501"  # Kendi IP adresinizi yazın
@@ -64,8 +67,54 @@ def draw_network_graph(supplier_data, buyer_demand, supplier_vars, objective_typ
     st.pyplot(plt)
 
 
-# Streamlit UI
+# Kullanıcı Bilgileri Girişi
 st.title("Endüstriyel Simbiyoz Optimizasyon Aracı")
+
+st.header("Kullanıcı Bilgileri")
+name = st.text_input("Adınız Soyadınız")
+company_name = st.text_input("Şirket İsmi")
+sector = st.selectbox(
+    "Şirket Sektörü",
+    ["Demir-Çelik", "Plastik Enjeksiyon", "Makine İmalatı"]
+)
+
+# Atık Bilgileri Seçimi
+waste_options = {
+    "Demir-Çelik": ["Demir Talaşı", "Çelik Artığı"],
+    "Plastik Enjeksiyon": ["PT", "HDPE", "PVC"],
+    "Makine İmalatı": ["Metal Talaşı", "Yağlı Atık"]
+}
+
+waste = st.selectbox("Atık Türü", waste_options.get(sector, []))
+
+if st.button("Bilgileri Kaydet"):
+    st.success(f"Bilgiler Kaydedildi: {name}, {company_name}, {sector}, {waste}")
+
+# Rastgele Uzaklık Matrisi
+st.header("Uzaklık Matrisi")
+try:
+    with open("database.json", "r") as f:
+        data = json.load(f)
+    st.write("Mevcut Uzaklık Matrisi:")
+    st.dataframe(pd.DataFrame(data["distance_matrix"]))
+except FileNotFoundError:
+    st.warning("Uzaklık matrisi bulunamadı. Yeni bir rastgele matris oluşturuluyor...")
+
+    # 8 firma için rastgele uzaklık matrisi oluştur
+    firms = [f"Firma {i+1}" for i in range(8)]
+    distance_matrix = {
+        firm: {other: random.randint(10, 100) if firm != other else 0 for other in firms}
+        for firm in firms
+    }
+
+    # Database'e kaydet
+    with open("database.json", "w") as f:
+        json.dump({"distance_matrix": distance_matrix}, f)
+
+    st.write("Yeni Uzaklık Matrisi:")
+    st.dataframe(pd.DataFrame(distance_matrix))
+
+# Streamlit Sidebar
 st.sidebar.header("Optimizasyon Seçenekleri")
 objective_type = st.sidebar.selectbox(
     "Optimizasyon amacını seçin",
