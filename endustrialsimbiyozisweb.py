@@ -2,6 +2,8 @@ import streamlit as st
 import pulp
 import networkx as nx
 import matplotlib.pyplot as plt
+import qrcode
+from PIL import Image
 import json
 import pandas as pd
 
@@ -13,27 +15,79 @@ distance_matrix = pd.DataFrame(matrices["distance_matrix"])
 time_matrix = pd.DataFrame(matrices["time_matrix"])
 cost_matrix = pd.DataFrame(matrices["cost_matrix"])
 
-# Firma bilgileri ve sektör eşlemesi
-firm_data = {
-    "Firma 1": {"sector": "Plastik Enjeksiyon", "waste": "HDPE", "amount": 100, "price": 15},
-    "Firma 2": {"sector": "Demir-Çelik", "waste": "Demir Talaşı", "amount": 200, "price": 10},
-    "Firma 3": {"sector": "Makine İmalatı", "waste": "Metal Talaşı", "amount": 150, "price": 20},
-    "Firma 4": {"sector": "Demir-Çelik", "waste": "Çelik Artığı", "amount": 180, "price": 12},
-    "Firma 5": {"sector": "Plastik Enjeksiyon", "waste": "PT", "amount": 120, "price": 18},
-    "Firma 6": {"sector": "Makine İmalatı", "waste": "Yağlı Atık", "amount": 140, "price": 25},
-    "Firma 7": {"sector": "Makine İmalatı", "waste": "Metal Talaşı", "amount": 130, "price": 22},
-    "Firma 8": {"sector": "Plastik Enjeksiyon", "waste": "HDPE", "amount": 110, "price": 19},
-}
+# Streamlit URL (Yerel ağ için IP adresinizi yazın)
+streamlit_url = "http://192.168.1.10:8501"  # Kendi IP adresinizi yazın
+
+def create_optimization_model(objective_type, buyer_demand, supplier_data):
+    # Create the optimization problem
+    prob = pulp.LpProblem("IndustrialSymbiosis", pulp.LpMinimize)
+
+    # Decision variables
+    supplier_vars = {i: pulp.LpVariable(f"Supplier_{i}", 0, supplier_data[i]['capacity'], pulp.LpContinuous)
+                     for i in supplier_data}
+
+    # Objective function
+    if objective_type == "Yol minimizasyonu":
+        prob += pulp.lpSum(supplier_vars[i] * supplier_data[i]['distance'] for i in supplier_data), "TotalDistance"
+    elif objective_type == "Maliyet minimizasyonu":
+        prob += pulp.lpSum(supplier_vars[i] * supplier_data[i]['cost'] for i in supplier_data), "TotalCost"
+    elif objective_type == "Süre minimizasyonu":
+        prob += pulp.lpSum(supplier_vars[i] * supplier_data[i]['time'] for i in supplier_data), "TotalTime"
+
+    # Constraints
+    prob += pulp.lpSum(supplier_vars[i] for i in supplier_data) == buyer_demand, "DemandConstraint"
+
+    # Solve the problem
+    prob.solve()
+
+    return prob, supplier_vars
+
+
+def draw_network_graph(supplier_data, buyer_demand, supplier_vars, objective_type):
+    G = nx.DiGraph()
+
+    # Mapping 'objective_type' to corresponding keys in 'supplier_data'
+    objective_mapping = {
+        "Yol minimizasyonu": "distance",
+        "Maliyet minimizasyonu": "cost",
+        "Süre minimizasyonu": "time"
+    }
+
+    # Add nodes for suppliers and buyer
+    for supplier in supplier_data:
+        G.add_node(f"Supplier_{supplier}", role='supplier')
+    G.add_node("Buyer", role='buyer')
+
+    # Add edges with weights
+    for supplier in supplier_data:
+        G.add_edge(f"Supplier_{supplier}", "Buyer",
+                   weight=supplier_data[supplier][objective_mapping[objective_type]],
+                   quantity=supplier_vars[supplier].varValue)
+
+    pos = nx.spring_layout(G)
+    edge_labels = {(u, v): f"{data['quantity']} units" for u, v, data in G.edges(data=True)}
+
+    # Draw the graph
+    nx.draw(G, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+    plt.title("Optimal Assignment Network")
+    st.pyplot(plt)
+
+
+# Streamlit UI
+st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 
 # Sol Şeride Kullanıcı Girdileri
 st.sidebar.header("Kullanıcı Bilgileri")
-name = st.sidebar.text_input("Adınız Soyadınız")
-company_name = st.sidebar.text_input("Şirket İsmi")
+name = st.sidebar.text_input("Adınız Soyadınız", "")
+company_name = st.sidebar.text_input("Şirket İsmi", "")
 sector = st.sidebar.selectbox(
     "Şirket Sektörü",
-    ["Demir-Çelik", "Plastik Enjeksiyon", "Makine İmalatı"]
+    ["", "Demir-Çelik", "Plastik Enjeksiyon", "Makine İmalatı"],  # Boş seçenek varsayılan
+    index=0
 )
 
+# Atık Bilgileri Seçimi
 waste_options = {
     "Demir-Çelik": ["Demir Talaşı", "Çelik Artığı"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
@@ -41,50 +95,50 @@ waste_options = {
 }
 waste = st.sidebar.selectbox("Almak İstediğiniz Atık", waste_options.get(sector, []))
 
-# Atığa Göre Firma Verilerini Filtreleme
+# Optimizasyon Amacı ve Talep
+st.sidebar.header("Optimizasyon Seçenekleri")
+objective_type = st.sidebar.selectbox(
+    "Optimizasyon amacını seçin",
+    ["Yol minimizasyonu", "Maliyet minimizasyonu", "Süre minimizasyonu"]
+)
+buyer_demand = st.sidebar.number_input("Alıcı talebi (birim)", min_value=1, step=1)
+
+# Firma Verileri (Sektöre Göre Filtreleme)
+firm_data = {
+    "Firma 1": {"sector": "Plastik Enjeksiyon", "waste": "HDPE", "capacity": 100, "distance": 50, "cost": 15, "time": 5},
+    "Firma 2": {"sector": "Demir-Çelik", "waste": "Demir Talaşı", "capacity": 200, "distance": 30, "cost": 10, "time": 3},
+    "Firma 3": {"sector": "Makine İmalatı", "waste": "Metal Talaşı", "capacity": 150, "distance": 70, "cost": 20, "time": 7},
+    # Diğer firmalar...
+}
+
 filtered_firms = {
     firm: data for firm, data in firm_data.items() if data["sector"] == sector and data["waste"] == waste
 }
 
-st.header("Satıcı Firmalar")
-if filtered_firms:
-    for firm, data in filtered_firms.items():
-        st.subheader(f"{firm} - {data['sector']}")
-        st.write(f"Atık: {data['waste']}")
-        st.write(f"Miktar: {data['amount']} birim")
-        st.write(f"Fiyat: {data['price']} $/birim")
-        if st.button(f"{firm} Ürünü Al"):
-            selected_firm = firm
-else:
-    st.warning("Seçtiğiniz atığı satan firma bulunamadı.")
+if st.sidebar.button("Optimizasyonu Çalıştır"):
+    # Optimizasyon Modeli
+    prob, supplier_vars = create_optimization_model(objective_type, buyer_demand, filtered_firms)
 
-# Şebeke Grafiği ve Optimizasyon
-if "selected_firm" in locals():
-    st.header("Şebeke Grafiği")
-    
-    # Şebeke Grafiği Çizimi
-    G = nx.DiGraph()
-    G.add_node("Buyer", role="buyer")
-    G.add_node(selected_firm, role="supplier")
+    # Sonuçlar
+    if pulp.LpStatus[prob.status] == "Optimal":
+        st.success("Optimal eşleşme sağlandı!")
+        for supplier in supplier_vars:
+            st.write(f"{supplier}: {supplier_vars[supplier].varValue} birim")
+        draw_network_graph(filtered_firms, buyer_demand, supplier_vars, objective_type)
+    else:
+        st.error("Optimum çözüm bulunamadı.")
 
-    distance = distance_matrix.loc["Buyer", selected_firm]
-    time = time_matrix.loc["Buyer", selected_firm]
-    cost = cost_matrix.loc["Buyer", selected_firm] * filtered_firms[selected_firm]["amount"]
+# QR Kodu Oluştur ve Göster
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(streamlit_url)
+qr.make(fit=True)
+img = qr.make_image(fill_color="black", back_color="white")
+img.save("qrcode.png")
 
-    G.add_edge(selected_firm, "Buyer", distance=distance, time=time, cost=cost)
-
-    pos = nx.spring_layout(G)
-    edge_labels = {(u, v): f"Mesafe: {data['distance']} km\nMaliyet: {data['cost']} $\nSüre: {data['time']} saat"
-                   for u, v, data in G.edges(data=True)}
-
-    nx.draw(G, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-    plt.title("Şebeke Grafiği")
-    st.pyplot(plt)
-
-    # Toplam Değerler
-    st.subheader("Toplam Değerler")
-    st.write(f"Toplam Mesafe: {distance} km")
-    st.write(f"Toplam Süre: {time} saat")
-    st.write(f"Toplam Maliyet: {cost} $")
-    st.write(f"Eşleşen Firma: {selected_firm}")
+st.image("qrcode.png", caption="Bu QR kodu tarayarak siteye erişin!")
+st.write(f"Erişim için URL: {streamlit_url}")
