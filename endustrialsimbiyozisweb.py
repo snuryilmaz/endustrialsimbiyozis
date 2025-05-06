@@ -81,7 +81,7 @@ sector = st.selectbox(
 # Atık Bilgileri Seçimi
 waste_options = {
     "Demir-Çelik": ["Demir Talaşı", "Çelik Artığı"],
-    "Plastik Enjeksiyon": ["PT", "HDPE", "PVC"],
+    "Plastik Enjeksiyon": ["PT", "HDPE"],
     "Makine İmalatı": ["Metal Talaşı", "Yağlı Atık"]
 }
 
@@ -90,13 +90,29 @@ waste = st.selectbox("Atık Türü", waste_options.get(sector, []))
 if st.button("Bilgileri Kaydet"):
     st.success(f"Bilgiler Kaydedildi: {name}, {company_name}, {sector}, {waste}")
 
-# Rastgele Uzaklık Matrisi
+# Sektöre Göre Filtrelenmiş Uzaklık Matrisi
 st.header("Uzaklık Matrisi")
+firm_sector_mapping = {
+    "Firma 1": "Plastik Enjeksiyon",
+    "Firma 2": "Demir-Çelik",
+    "Firma 3": "Makine İmalatı",
+    "Firma 4": "Demir-Çelik",
+    "Firma 5": "Plastik Enjeksiyon",
+    "Firma 6": "Makine İmalatı",
+    "Firma 7": "Makine İmalatı",
+    "Firma 8": "Plastik Enjeksiyon"
+}
+
 try:
     with open("database.json", "r") as f:
         data = json.load(f)
     st.write("Mevcut Uzaklık Matrisi:")
-    st.dataframe(pd.DataFrame(data["distance_matrix"]))
+    distance_matrix = pd.DataFrame(data["distance_matrix"])
+
+    # Sektör filtrelemesi
+    filtered_firms = [firm for firm, firm_sector in firm_sector_mapping.items() if firm_sector == sector]
+    filtered_distance_matrix = distance_matrix.loc[filtered_firms, filtered_firms]
+    st.dataframe(filtered_distance_matrix)
 except FileNotFoundError:
     st.warning("Uzaklık matrisi bulunamadı. Yeni bir rastgele matris oluşturuluyor...")
 
@@ -112,9 +128,12 @@ except FileNotFoundError:
         json.dump({"distance_matrix": distance_matrix}, f)
 
     st.write("Yeni Uzaklık Matrisi:")
-    st.dataframe(pd.DataFrame(distance_matrix))
+    distance_matrix = pd.DataFrame(distance_matrix)
+    filtered_firms = [firm for firm, firm_sector in firm_sector_mapping.items() if firm_sector == sector]
+    filtered_distance_matrix = distance_matrix.loc[filtered_firms, filtered_firms]
+    st.dataframe(filtered_distance_matrix)
 
-# Streamlit Sidebar
+# Streamlit Sidebar (Satıcı Bilgileri Kaldırıldı)
 st.sidebar.header("Optimizasyon Seçenekleri")
 objective_type = st.sidebar.selectbox(
     "Optimizasyon amacını seçin",
@@ -124,19 +143,18 @@ objective_type = st.sidebar.selectbox(
 st.sidebar.header("Alıcı Bilgileri")
 buyer_demand = st.sidebar.number_input("Alıcı talebi (birim)", min_value=1, step=1)
 
-st.sidebar.header("Satıcı Bilgileri")
-supplier_count = st.sidebar.number_input("Satıcı sayısı", min_value=1, max_value=10, step=1)
-
-supplier_data = {}
-for i in range(1, supplier_count + 1):
-    st.sidebar.subheader(f"Satıcı {i}")
-    capacity = st.sidebar.number_input(f"Satıcı {i} kapasitesi", min_value=1, step=1)
-    distance = st.sidebar.number_input(f"Satıcı {i} mesafesi", min_value=1.0, step=1.0)
-    cost = st.sidebar.number_input(f"Satıcı {i} maliyeti", min_value=1.0, step=1.0)
-    time = st.sidebar.number_input(f"Satıcı {i} süresi", min_value=1.0, step=1.0)
-    supplier_data[i] = {"capacity": capacity, "distance": distance, "cost": cost, "time": time}
-
 if st.button("Optimizasyonu Çalıştır"):
+    # Sadece filtrelenmiş firmaları kullanarak optimizasyon
+    supplier_data = {
+        firm: {
+            "capacity": 100,  # Varsayılan kapasite
+            "distance": distance_matrix.loc[firm, "Firma 1"],  # Örnek mesafe
+            "cost": random.randint(10, 50),  # Rastgele maliyet
+            "time": random.randint(1, 10)  # Rastgele süre
+        }
+        for firm in filtered_firms
+    }
+
     # Run optimization
     prob, supplier_vars = create_optimization_model(objective_type, buyer_demand, supplier_data)
 
