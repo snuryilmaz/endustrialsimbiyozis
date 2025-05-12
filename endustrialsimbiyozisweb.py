@@ -3,6 +3,20 @@ import pulp
 import networkx as nx
 import matplotlib.pyplot as plt
 from geopy.distance import geodesic
+import pandas as pd
+import qrcode
+import io
+
+# Başlık
+st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
+
+# Tanıtım Yazısı
+st.subheader("Endüstriyel Simbiyoz Nedir?")
+st.write("""
+Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. 
+Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır. 
+Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
+""")
 
 # Firmaların GPS koordinatları
 firma_koordinatlari = {
@@ -28,13 +42,37 @@ firma_bilgileri = {
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400},
 }
 
+# Firma Bilgileri Tablosu
+firma_bilgileri_tablo = {
+    "Firma Adı": ["Firma 1", "Firma 2", "Firma 3", "Firma 4", "Firma 5", "Firma 6", "Firma 7", "Firma 8"],
+    "Sektör": ["Demir-Çelik", "Demir-Çelik", "Makine İmalat", "Plastik Enjeksiyon", "Plastik Enjeksiyon", 
+               "Makine İmalat", "Makine İmalat", "Plastik Enjeksiyon"],
+    "Ürün": ["Metal Talaşı", "Çelik Parçaları", "Makine Parçaları", "PT", "HDPE", 
+             "Elektronik Atıklar", "Makine Parçaları", "PT"],
+    "Miktar (kg)": [100, 200, 150, 300, 250, 100, 200, 400],
+    "Fiyat (TL/kg)": [5, 4, 15, 10, 12, 20, 18, 8]
+}
+
+df = pd.DataFrame(firma_bilgileri_tablo)
+
+st.subheader("Firma Bilgileri")
+st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar ve fiyat bilgilerini göstermektedir.")
+st.dataframe(df)
+
 # Kullanıcı bilgileri
 with st.sidebar:
     st.header("Kullanıcı Bilgileri")
     ad_soyad = st.text_input("Ad Soyad")
     sirket_adi = st.text_input("Şirket Adı")
     sektor = st.selectbox("Şirketin Sektörü", ["Demir-Çelik", "Plastik Enjeksiyon", "Makine İmalat"])
-    atik_turu = st.selectbox("Atık Türü", ["Metal Talaşı", "Çelik Parçaları", "PT", "HDPE", "Makine Parçaları", "Elektronik Atıklar"])
+
+    # Dinamik Atık Türü Seçimi
+    atik_turleri = {
+        "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
+        "Plastik Enjeksiyon": ["PT", "HDPE"],
+        "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"]
+    }
+    atik_turu = st.selectbox("Atık Türü", atik_turleri[sektor])
     miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=1000)
     koordinatlar = st.text_input("Kullanıcı GPS Koordinatları (enlem, boylam)", "41.0000,39.7000")
 
@@ -52,58 +90,67 @@ if st.button("Uygulamayı Çalıştır"):
         if bilgi["sektor"] == sektor and bilgi["atik"] == atik_turu
     }
 
-    # Firmalarla mesafeleri hesapla
-    mesafeler = {
-        firma: geodesic(alici_koordinati, firma_koordinatlari[firma]).kilometers
-        for firma in uygun_firmalar
-    }
+    if not uygun_firmalar:
+        st.error("Seçilen sektöre ve atık türüne uygun firma bulunamadı!")
+    else:
+        # Firmalarla mesafeleri hesapla
+        mesafeler = {
+            firma: geodesic(alici_koordinati, firma_koordinatlari[firma]).kilometers
+            for firma in uygun_firmalar
+        }
 
-    # Optimizasyon modeli
-    problem = pulp.LpProblem("AtikOptimizasyon", pulp.LpMinimize)
-    karar_degiskenleri = {firma: pulp.LpVariable(firma, 0, 1, pulp.LpBinary) for firma in uygun_firmalar}
+        # Optimizasyon modeli
+        problem = pulp.LpProblem("AtikOptimizasyon", pulp.LpMinimize)
+        karar_degiskenleri = {firma: pulp.LpVariable(firma, 0, 1, pulp.LpBinary) for firma in uygun_firmalar}
 
-    # Amaç fonksiyonu: Mesafe ve maliyeti minimize et
-    problem += pulp.lpSum(
-        karar_degiskenleri[firma] * (mesafeler[firma] + uygun_firmalar[firma]["fiyat"])
-        for firma in uygun_firmalar
-    )
+        # Amaç fonksiyonu: Mesafe ve maliyeti minimize et
+        problem += pulp.lpSum(
+            karar_degiskenleri[firma] * (mesafeler[firma] + uygun_firmalar[firma]["fiyat"])
+            for firma in uygun_firmalar
+        )
 
-    # Talep kısıtı
-    problem += pulp.lpSum(
-        karar_degiskenleri[firma] * uygun_firmalar[firma]["miktar"] for firma in uygun_firmalar
-    ) >= miktar
+        # Talep kısıtı
+        problem += pulp.lpSum(
+            karar_degiskenleri[firma] * uygun_firmalar[firma]["miktar"] for firma in uygun_firmalar
+        ) >= miktar
 
-    # Optimizasyonu çöz
-    problem.solve()
+        # Optimizasyonu çöz
+        problem.solve()
 
-    # Şebeke grafiği
-    st.header("Şebeke Grafiği")
-    grafik = nx.DiGraph()
-    grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+        # Şebeke grafiği
+        st.header("Şebeke Grafiği")
+        grafik = nx.DiGraph()
+        grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
 
-    optimal_firmalar = []
-    for firma in uygun_firmalar:
-        grafik.add_node(firma, pos=(firma_koordinatlari[firma][1], firma_koordinatlari[firma][0]))
-        renk = "green" if karar_degiskenleri[firma].varValue == 1 else "gray"
-        grafik.add_edge(firma, "Siz", mesafe=f"{mesafeler[firma]:.2f} km", renk=renk)
+        optimal_firmalar = []
+        for firma in uygun_firmalar:
+            grafik.add_node(firma, pos=(firma_koordinatlari[firma][1], firma_koordinatlari[firma][0]))
+            renk = "green" if karar_degiskenleri[firma].varValue == 1 else "gray"
+            grafik.add_edge(firma, "Siz", mesafe=f"{mesafeler[firma]:.2f} km", renk=renk)
 
-        if karar_degiskenleri[firma].varValue == 1:
-            optimal_firmalar.append(firma)
+            if karar_degiskenleri[firma].varValue == 1:
+                optimal_firmalar.append(firma)
 
-    pos = nx.get_node_attributes(grafik, 'pos')
-    kenar_renkleri = [grafik[u][v]["renk"] for u, v in grafik.edges()]
-    etiketler = {(u, v): grafik[u][v]["mesafe"] for u, v in grafik.edges()}
+        pos = nx.get_node_attributes(grafik, 'pos')
+        kenar_renkleri = [grafik[u][v]["renk"] for u, v in grafik.edges()]
+        etiketler = {(u, v): grafik[u][v]["mesafe"] for u, v in grafik.edges()}
 
-    nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
-    nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
-    nx.draw_networkx_edges(grafik, pos, edge_color=kenar_renkleri, width=2)
-    plt.title("Optimal Eşleşme Şebekesi")
-    st.pyplot(plt)
+        nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
+        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
+        nx.draw_networkx_edges(grafik, pos, edge_color=kenar_renkleri, width=2)
+        plt.title("Optimal Eşleşme Şebekesi")
+        st.pyplot(plt)
 
-    # Optimizasyon sonuçları
-    st.header("Optimizasyon Sonuçları")
-    toplam_maliyet = pulp.value(problem.objective)
-    st.write(f"Toplam Maliyet: {toplam_maliyet:.2f} TL")
-    st.write("Optimal Eşleşme Sağlanan Firmalar:")
-    for firma in optimal_firmalar:
-        st.write(f"{firma} - Mesafe: {mesafeler[firma]:.2f} km, Fiyat: {uygun_firmalar[firma]['fiyat']} TL/kg")
+        # Optimizasyon sonuçları
+        st.header("Optimizasyon Sonuçları")
+        toplam_maliyet = pulp.value(problem.objective)
+        st.write(f"Toplam Maliyet: {toplam_maliyet:.2f} TL")
+        st.write("Optimal Eşleşme Sağlanan Firmalar:")
+        for firma in optimal_firmalar:
+            st.write(f"{firma} - Mesafe: {mesafeler[firma]:.2f} km, Fiyat: {uygun_firmalar[firma]['fiyat']} TL/kg")
+
+# QR Kod Ekleme
+qr = qrcode.make("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
+qr_buffer = io.BytesIO()
+qr.save(qr_buffer)
+st.image(qr_buffer, caption="Endüstriyel Simbiyoz Platformuna Hızlı Erişim için QR Kod", use_column_width=True)
