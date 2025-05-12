@@ -111,12 +111,35 @@ if uygulama_butonu:
         # Optimizasyon sonuçlarını hesapla
         toplam_alinan = sum(karar_degiskenleri[firma].varValue for firma in uygun_firmalar)
         eksik_miktar = miktar - toplam_alinan
+        toplam_maliyet = sum(karar_degiskenleri[firma].varValue * uygun_firmalar[firma]["fiyat"] for firma in uygun_firmalar)
 
-        st.header("Optimizasyon Sonuçları")
+        # Şebeke grafiği
+        st.header("Şebeke Grafiği")
+        grafik = nx.DiGraph()
+        grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+
+        for firma in uygun_firmalar:
+            grafik.add_node(firma, pos=(firma_koordinatlari[firma][1], firma_koordinatlari[firma][0]))
+            renk = "green" if karar_degiskenleri[firma].varValue > 0 else "gray"
+            grafik.add_edge(firma, "Siz", mesafe=f"{karar_degiskenleri[firma].varValue:.2f} kg", renk=renk)
+
+        pos = nx.get_node_attributes(grafik, 'pos')
+        kenar_renkleri = [grafik[u][v]["renk"] for u, v in grafik.edges()]
+        etiketler = {(u, v): grafik[u][v]["mesafe"] for u, v in grafik.edges()}
+
+        nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
+        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
+        nx.draw_networkx_edges(grafik, pos, edge_color=kenar_renkleri, width=2)
+        plt.title("Optimal Eşleşme Şebekesi")
+        st.pyplot(plt)
+
+        # Optimizasyon sonuçları
+        st.markdown(f"<h2 style='color:green;'>Toplam Maliyet: {toplam_maliyet:.2f} TL</h2>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color:blue;'>Eşleşen Firmalar:</h3>", unsafe_allow_html=True)
         for firma in uygun_firmalar:
             alinan_miktar = karar_degiskenleri[firma].varValue
             if alinan_miktar > 0:
-                st.write(f"{firma}: {alinan_miktar:.2f} kg, Fiyat: {uygun_firmalar[firma]['fiyat']} TL/kg")
+                st.markdown(f"<p style='font-size:18px;'>{firma}: {alinan_miktar:.2f} kg, Fiyat: {uygun_firmalar[firma]['fiyat']} TL/kg</p>", unsafe_allow_html=True)
 
         if eksik_miktar > 0:
             st.warning(f"Talebinizin {eksik_miktar:.2f} kg'ı karşılanamadı.")
