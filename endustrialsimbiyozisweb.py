@@ -150,7 +150,8 @@ if st.button("Uygulamayı Çalıştır"):
             st.write(f"{firma} - Mesafe: {mesafeler[firma]:.2f} km, Fiyat: {uygun_firmalar[firma]['fiyat']} TL/kg")
 
 # QR Kod Ekleme
-qr = qrcode.make("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
+qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
+qr = qrcode.make(qr_link)
 qr_buffer = io.BytesIO()
 qr.save(qr_buffer)
-st.image(qr_buffer, caption="Endüstriyel Simbiyoz Platformuna Hızlı Erişim için QR Kod", use_column_width=True)
+st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_column_width=True)
