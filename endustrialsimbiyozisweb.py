@@ -103,9 +103,9 @@ if st.button("Uygulamayı Çalıştır"):
         problem = pulp.LpProblem("AtikOptimizasyon", pulp.LpMinimize)
         karar_degiskenleri = {firma: pulp.LpVariable(firma, 0, 1, pulp.LpBinary) for firma in uygun_firmalar}
 
-        # Amaç fonksiyonu: Mesafe ve maliyeti minimize et
+        # Amaç fonksiyonu: Fiyatı minimize et
         problem += pulp.lpSum(
-            karar_degiskenleri[firma] * (mesafeler[firma] + uygun_firmalar[firma]["fiyat"])
+            karar_degiskenleri[firma] * uygun_firmalar[firma]["fiyat"] * miktar
             for firma in uygun_firmalar
         )
 
