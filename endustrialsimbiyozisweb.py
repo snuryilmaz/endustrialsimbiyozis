@@ -7,6 +7,29 @@ import pandas as pd
 import qrcode
 import io
 
+# Özel CSS kullanarak arka plan rengini gri yapmak için
+st.markdown(
+    """
+    <style>
+    /* Arka plan rengini gri yapmak için */
+    body {
+        background-color: #D5D5D5; /* Granit rengine benzeyen bir gri tonu */
+    }
+
+    /* Başlıklar için renk değişikliği */
+    h1, h2, h3, h4, h5, h6 {
+        color: #333333; /* Daha koyu bir gri renk */
+    }
+
+    /* Sidebar arka plan rengi */
+    .css-1d391kg {
+        background-color: rgba(211, 211, 211, 0.8); /* Sidebar için yarı saydam bir gri */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Başlık
 st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 
