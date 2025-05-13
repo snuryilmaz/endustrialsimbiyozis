@@ -172,9 +172,9 @@ if uygulama_butonu:
         else:
             st.success("Tüm talebiniz başarıyla karşılandı!")
 
-        # QR Kod Ekleme
+       # QR Kod Ekleme
         qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
         qr = qrcode.make(qr_link)
         qr_buffer = io.BytesIO()
         qr.save(qr_buffer)
-        st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_column_width=True)
+        st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
