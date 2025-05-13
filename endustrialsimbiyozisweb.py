@@ -75,8 +75,8 @@ firma_bilgileri_tablo = {
                "Makine İmalat", "Makine İmalat", "Plastik Enjeksiyon"],
     "Ürün": ["Metal Talaşı", "Çelik Parçaları", "Makine Parçaları", "PT", "HDPE", 
              "Elektronik Atıklar", "Makine Parçaları", "PT"],
-    "Miktar (kg)": [100, 200, 150, 300, 250, 100, 200, 400],
-    "Fiyat (TL/kg)": [5, 4, 15, 10, 12, 20, 18, 8]
+    "Miktar (kg)": [1000, 2000, 1500, 3500, 2500, 1000, 2000, 4000],
+    "Fiyat (TL/kg)": [50, 48, 105, 110, 212, 250, 188, 96]
 }
 
 df = pd.DataFrame(firma_bilgileri_tablo)
