@@ -11,9 +11,12 @@ import io
 st.markdown(
     """
     <style>
-    /* Arka plan rengini gri yapmak için */
+    /* Arka plan resmi ekleme */
     body {
-        background-color: #D5D5D5; /* Granit rengine benzeyen bir gri tonu */
+        background-image: url('https://drive.google.com/drive/recent'); /* Resim URL'si */
+        background-size: cover; /* Resmi kaplayacak şekilde ayarla */
+        background-repeat: no-repeat; /* Resmin tekrarını engelle */
+        background-attachment: fixed; /* Sayfa kaydırıldığında arka planı sabit tut */
     }
 
     /* Başlıklar için renk değişikliği */
