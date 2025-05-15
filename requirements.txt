@@ -5,3 +5,11 @@ matplotlib
 qrcode
 pillow
 geopy
+
+# Excel okuma için
+pandas
+openpyxl
+
+# Pyomo ve açık kaynak çözücüler (GLPK, CBC, COIN-OR vb.)
+pyomo[solvers]
+
