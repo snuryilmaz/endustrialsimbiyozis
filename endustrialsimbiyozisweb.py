@@ -45,15 +45,19 @@ st.markdown(
         box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
     </style>
+    """,
+    unsafe_allow_html=True
+)
 
-    <!-- Logo HTML kodu -->
+# HTML kısmı (ayrı)
+st.markdown(
+    """
     <div class="logo-container">
         <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Endüstriyel Simbiyoz Logo">
     </div>
     """,
     unsafe_allow_html=True
 )
-
 # Başlıklar
 st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 st.subheader("Endüstriyel Simbiyoz Nedir?")
