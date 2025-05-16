@@ -12,15 +12,44 @@ from optimization import optimize_waste_allocation
 st.markdown(
     """
     <style>
+    /* Arka plan resmi */
     body {
-        background-image: url('https://drive.google.com/file/d/1RGx30pfjOwE9FqkKbxIXhOPafQ1hPpvY/view?usp=sharing');
+        background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
-    h1, h2, h3, h4, h5, h6 { color: #333333; }
-    .css-1d391kg { background-color: rgba(211, 211, 211, 0.8); }
+
+    /* Uygulama gövdesi */
+    .stApp {
+        background-color: rgba(255, 255, 255, 0.90);
+        padding-top: 80px;
+    }
+
+    /* Başlık renkleri */
+    h1, h2, h3, h4, h5, h6 {
+        color: #2e7d32 !important;
+    }
+
+    /* Logo yerleşimi */
+    .logo-container {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 9999;
+    }
+
+    .logo-container img {
+        height: 60px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
     </style>
+
+    <!-- Logo HTML kodu -->
+    <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Endüstriyel Simbiyoz Logo">
+    </div>
     """,
     unsafe_allow_html=True
 )
