@@ -5,10 +5,9 @@ from geopy.distance import geodesic
 import pandas as pd
 import qrcode
 import io
-
 from optimization import optimize_waste_allocation
 
-# Özel CSS ile arka plan ve renk ayarları
+# -------------------- STİL ----------------------
 st.markdown(
     """
     <style>
@@ -24,56 +23,57 @@ st.markdown(
         padding-top: 80px;
     }
 
+    .logo-container {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 9999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .logo-container img {
+        height: 100px;
+    }
+
     h1, h2, h3, h4, h5, h6 {
         color: #2e7d32 !important;
-    }
-
-    /* Logo için farklı bir alan */
-    header {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        padding: 10px 20px;
-    }
-
-    .logo-right {
-        height: 200px;
-        border-radius: 12px;
-        background-color: white;
-        padding: 6px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.25);
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# HTML kısmı ayrı tutulmalı
 st.markdown(
     """
-    <header>
-        <img class="logo-right" src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Endüstriyel Simbiyoz Logo">
-    </header>
+    <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Logo">
+    </div>
     """,
     unsafe_allow_html=True
 )
-# Başlıklar
+
+# -------------------- SAYFA BAŞI ----------------------
+
 st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 st.subheader("Endüstriyel Simbiyoz Nedir?")
 st.write(
     """
     Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
-    Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
     Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
     """
 )
 
-# Firma koordinat ve bilgi tanımları
-turikler = {  # mevcut atık türleri tanımı
+# -------------------- SABİT VERİLER ----------------------
+
+turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
     "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"]
 }
+
 firma_koordinatlari = {
     "Firma 1": (41.0105, 39.7266),
     "Firma 2": (40.9900, 39.7200),
@@ -84,6 +84,7 @@ firma_koordinatlari = {
     "Firma 7": (41.0300, 39.7400),
     "Firma 8": (41.0350, 39.7450),
 }
+
 firma_bilgileri = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
     "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200},
@@ -95,7 +96,33 @@ firma_bilgileri = {
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400},
 }
 
-# Firma Bilgileri Tablosu
+# -------------------- SIDEBAR ----------------------
+
+with st.sidebar:
+    st.title("Kullanıcı Seçimi")
+
+    secim = st.radio(
+        "Ne yapmak istiyorsunuz?",
+        ["Ürün almak istiyorum", "Satıcı kaydı yapmak istiyorum"],
+        index=0
+    )
+
+    if secim == "Ürün almak istiyorum":
+        st.header("Alıcı Bilgileri")
+        ad_soyad = st.text_input("Ad Soyad")
+        sirket_adi = st.text_input("Şirket Adı")
+        sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
+        atik_turu = st.selectbox("Atık Türü", turikler[sektor])
+        miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=10000)
+        koordinatlar = st.text_input("Kullanıcı GPS Koordinatları (enlem, boylam)", "41.7800,39.7900")
+        uygulama_butonu = st.button("Eşleşme ağını gör")
+
+    elif secim == "Satıcı kaydı yapmak istiyorum":
+        st.header("Satıcı Kaydı (Yapılacak)")
+        st.info("Bu form daha sonra eklenecek.")
+
+# -------------------- FİRMA TABLOSU ----------------------
+
 firma_bilgileri_tablo = {
     "Firma Adı": list(firma_bilgileri.keys()),
     "Sektör": [v["sektor"] for v in firma_bilgileri.values()],
@@ -109,36 +136,24 @@ st.subheader("Firma Bilgileri")
 st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar ve fiyat bilgilerini göstermektedir.")
 st.dataframe(df)
 
-# Sidebar girdileri
-with st.sidebar:
-    st.header("Kullanıcı Bilgileri")
-    ad_soyad = st.text_input("Ad Soyad")
-    sirket_adi = st.text_input("Şirket Adı")
-    sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
-    atik_turu = st.selectbox("Atık Türü", turikler[sektor])
-    miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=1000)
-    koordinatlar = st.text_input("Kullanıcı GPS Koordinatları (enlem, boylam)", "41.0000,39.7000")
-    uygulama_butonu = st.button("Uygulamayı Çalıştır")
+# -------------------- MODEL ----------------------
 
-# Koordinat doğrulama
 try:
     alici_koordinati = tuple(map(float, koordinatlar.split(",")))
-except ValueError:
-    st.error("Geçerli bir koordinat giriniz (örnek: 41.0000,39.7000)")
+except:
+    alici_koordinati = (0.0, 0.0)
 
-# Model çağırma ve sonuç gösterimi
-if uygulama_butonu:
+if secim == "Ürün almak istiyorum" and uygulama_butonu:
     excel_path = "endustriyel_simbiyoz_model_guncel.xlsx"
     results, total_cost = optimize_waste_allocation(excel_path)
+
     if results is None:
         st.error("Optimizasyon modeli çözülemedi!")
     else:
-        # Sonuçları göster
         st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL")
-        # Şebeke grafiği
         st.header("Şebeke Grafiği")
         grafik = nx.DiGraph()
-        # Düğümleri ekle
+
         grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
         for src, dst, atik, miktar_flow in results:
             grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
@@ -148,7 +163,7 @@ if uygulama_butonu:
 
         pos = nx.get_node_attributes(grafik, 'pos')
         kenar_renkleri = [grafik[u][v]['renk'] for u, v in grafik.edges()]
-        etiketler = {(u, v): grafik[u][v]['mesafe'] for u, v in grafik.edges()}
+        etiketler = {(u, v): grafik[u][v]['mesafe'] for u, v in grafik.edges()]
 
         nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
         nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
@@ -156,10 +171,8 @@ if uygulama_butonu:
         plt.title("Optimal Taşıma Şebekesi")
         st.pyplot(plt)
 
-        # QR Kod Ekleme
         qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
         qr = qrcode.make(qr_link)
         qr_buffer = io.BytesIO()
         qr.save(qr_buffer)
         st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
-
