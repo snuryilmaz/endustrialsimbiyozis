@@ -133,7 +133,7 @@ with st.sidebar:
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
 
         if kaydet_buton:
-            yeni_id = f"Firma {len(firma_koordinatlari) + 1}"
+            yeni_id =firma_adi.strip()
             gps = (41.01 + 0.001 * len(st.session_state["yeni_firmalar"]), 39.72 + 0.001 * len(st.session_state["yeni_firmalar"]))
             firma_koordinatlari[yeni_id] = gps
             firma_bilgileri[yeni_id] = {
@@ -163,16 +163,19 @@ st.dataframe(df)
 st.subheader("Yeni Eklenen Firmalar")
 for firma in st.session_state["yeni_firmalar"]:
     col1, col2 = st.columns([5, 1])
-    with col1:
-        st.markdown(f"**{firma}** - {firma_bilgileri[firma]['sektor']} - {firma_bilgileri[firma]['atik']} ({firma_bilgileri[firma]['miktar']} kg)")
-    with col2:
-        if st.button("Firmayı Sil", key=f"sil_{firma}"):
-            st.session_state["yeni_firmalar"].remove(firma)
-             # Önce sil
-            firma_bilgileri.pop(firma, None)
-            firma_koordinatlari.pop(firma, None)
-            # Sonra sayfayı yenile
-            st.experimental_rerun()
+     if firma in firma_bilgileri:
+        sektor = firma_bilgileri[firma]['sektor']
+        atik = firma_bilgileri[firma]['atik']
+        miktar = firma_bilgileri[firma]['miktar']
+        fiyat = firma_bilgileri[firma]['fiyat']
+   with col1:
+            st.markdown(f"**{firma}** - {sektor} - {atik} ({miktar} kg, {fiyat} TL/kg)")
+        with col2:
+            if st.button("Firmayı Sil", key=f"sil_{firma}"):
+                st.session_state["yeni_firmalar"].remove(firma)
+                firma_bilgileri.pop(firma, None)
+                firma_koordinatlari.pop(firma, None)
+                st.experimental_rerun()
 # -------------------- MODEL ----------------------
 
 try:
