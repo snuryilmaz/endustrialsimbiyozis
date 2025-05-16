@@ -168,10 +168,11 @@ for firma in st.session_state["yeni_firmalar"]:
     with col2:
         if st.button("Firmayı Sil", key=f"sil_{firma}"):
             st.session_state["yeni_firmalar"].remove(firma)
-            del firma_bilgileri[firma]
-            del firma_koordinatlari[firma]
+             # Önce sil
+            firma_bilgileri.pop(firma, None)
+            firma_koordinatlari.pop(firma, None)
+            # Sonra sayfayı yenile
             st.experimental_rerun()
-
 # -------------------- MODEL ----------------------
 
 try:
