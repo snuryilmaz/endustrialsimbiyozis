@@ -163,7 +163,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
 
         pos = nx.get_node_attributes(grafik, 'pos')
         kenar_renkleri = [grafik[u][v]['renk'] for u, v in grafik.edges()]
-        etiketler = {(u, v): grafik[u][v]['mesafe'] for u, v in grafik.edges()]
+        etiketler = {(u, v): grafik[u][v]['mesafe'] for u, v in grafik.edges()}
 
         nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
         nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
