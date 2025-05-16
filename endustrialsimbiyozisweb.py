@@ -96,7 +96,7 @@ except ValueError:
 
 # Model çağırma ve sonuç gösterimi
 if uygulama_butonu:
-    excel_path = "data/endustriyel_simbiyoz_model_guncel.xlsx"
+    excel_path = "endustriyel_simbiyoz_model_guncel.xlsx"
     results, total_cost = optimize_waste_allocation(excel_path)
     if results is None:
         st.error("Optimizasyon modeli çözülemedi!")
