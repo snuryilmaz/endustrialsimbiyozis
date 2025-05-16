@@ -22,7 +22,7 @@ st.markdown(
 
     /* Uygulama gövdesi */
     .stApp {
-        background-color: rgba(255, 255, 255, 0.90);
+        background-color: rgba(255, 255, 255, 0.70);
         padding-top: 80px;
     }
 
@@ -39,11 +39,18 @@ st.markdown(
         z-index: 9999;
     }
 
-    .logo-container img {
-        height: 60px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
+   .logo-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 99999;
+    background-color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
+.logo-container img {
+    height: 60px;
+}
     </style>
     """,
     unsafe_allow_html=True
