@@ -11,60 +11,13 @@ from optimization import optimize_waste_allocation
 # Özel CSS ile arka plan ve renk ayarları
 st.markdown(
     """
-    <style>
-    /* Arka plan resmi */
-    body {
-        background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-
-    /* Uygulama gövdesi */
-    .stApp {
-        background-color: rgba(255, 255, 255, 0.70);
-        padding-top: 80px;
-    }
-
-    /* Başlık renkleri */
-    h1, h2, h3, h4, h5, h6 {
-        color: #2e7d32 !important;
-    }
-
-    /* Logo yerleşimi */
-    .logo-container {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        z-index: 9999;
-    }
-
-   .logo-container {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 99999;
-    background-color: white;
-    padding: 5px;
-    border-radius: 10px;
-}
-.logo-container img {
-    height: 60px;
-}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# HTML kısmı (ayrı)
-st.markdown(
-    """
     <div class="logo-container">
         <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Endüstriyel Simbiyoz Logo">
     </div>
     """,
     unsafe_allow_html=True
 )
+
 # Başlıklar
 st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 st.subheader("Endüstriyel Simbiyoz Nedir?")
