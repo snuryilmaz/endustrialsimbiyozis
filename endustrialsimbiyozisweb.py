@@ -163,12 +163,12 @@ st.dataframe(df)
 st.subheader("Yeni Eklenen Firmalar")
 for firma in st.session_state["yeni_firmalar"]:
     col1, col2 = st.columns([5, 1])
-     if firma in firma_bilgileri:
+    if firma in firma_bilgileri:
         sektor = firma_bilgileri[firma]['sektor']
         atik = firma_bilgileri[firma]['atik']
         miktar = firma_bilgileri[firma]['miktar']
         fiyat = firma_bilgileri[firma]['fiyat']
-   with col1:
+        with col1:
             st.markdown(f"**{firma}** - {sektor} - {atik} ({miktar} kg, {fiyat} TL/kg)")
         with col2:
             if st.button("Firmayı Sil", key=f"sil_{firma}"):
@@ -176,6 +176,7 @@ for firma in st.session_state["yeni_firmalar"]:
                 firma_bilgileri.pop(firma, None)
                 firma_koordinatlari.pop(firma, None)
                 st.experimental_rerun()
+
 # -------------------- MODEL ----------------------
 
 try:
