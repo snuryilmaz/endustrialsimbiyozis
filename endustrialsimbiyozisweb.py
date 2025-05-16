@@ -37,7 +37,7 @@ st.markdown(
     }
 
     .logo-right {
-        height: 60px;
+        height: 100px;
         border-radius: 12px;
         background-color: white;
         padding: 6px;
