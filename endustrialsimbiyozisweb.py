@@ -20,7 +20,7 @@ st.markdown(
     }
 
     .stApp {
-        background-color: rgba(255, 255, 255, 0.70);  /* daha şeffaf */
+        background-color: rgba(255, 255, 255, 0.6);
         padding-top: 80px;
     }
 
@@ -28,18 +28,20 @@ st.markdown(
         color: #2e7d32 !important;
     }
 
-    .logo-container {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 99999;
-        background-color: white;
-        padding: 5px;
-        border-radius: 10px;
+    /* Logo için farklı bir alan */
+    header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 10px 20px;
     }
 
-    .logo-container img {
+    .logo-right {
         height: 60px;
+        border-radius: 12px;
+        background-color: white;
+        padding: 6px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.25);
     }
     </style>
     """,
@@ -49,14 +51,12 @@ st.markdown(
 # HTML kısmı ayrı tutulmalı
 st.markdown(
     """
-    <div class="logo-container">
-        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Endüstriyel Simbiyoz Logo">
-    </div>
+    <header>
+        <img class="logo-right" src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Endüstriyel Simbiyoz Logo">
+    </header>
     """,
     unsafe_allow_html=True
 )
-
-
 # Başlıklar
 st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 st.subheader("Endüstriyel Simbiyoz Nedir?")
