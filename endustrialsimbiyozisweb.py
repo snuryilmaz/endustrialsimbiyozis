@@ -5,6 +5,7 @@ from geopy.distance import geodesic
 import pandas as pd
 import qrcode
 import io
+import uuid  # benzersiz ID üretimi için
 from optimization import optimize_waste_allocation
 
 # -------------------- STİL ----------------------
@@ -98,6 +99,10 @@ firma_bilgileri = {
 
 # -------------------- SIDEBAR ----------------------
 
+# GLOBAL: Eklenen firmalar burada tutulacak
+if "yeni_firmalar" not in st.session_state:
+    st.session_state["yeni_firmalar"] = []
+
 with st.sidebar:
     st.title("Kullanıcı Seçimi")
 
@@ -113,13 +118,32 @@ with st.sidebar:
         sirket_adi = st.text_input("Şirket Adı")
         sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
         atik_turu = st.selectbox("Atık Türü", turikler[sektor])
-        miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=10000)
-        koordinatlar = st.text_input("Kullanıcı GPS Koordinatları (enlem, boylam)", "41.7800,39.7900")
-        uygulama_butonu = st.button("Eşleşme ağını gör")
+        miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=1000)
+        koordinatlar = st.text_input("Kullanıcı GPS Koordinatları (enlem, boylam)", "41.0000,39.7000")
+        uygulama_butonu = st.button("Uygulamayı Çalıştır")
 
     elif secim == "Satıcı kaydı yapmak istiyorum":
-        st.header("Satıcı Kaydı (Yapılacak)")
-        st.info("Bu form daha sonra eklenecek.")
+        st.header("Satıcı Kaydı")
+        firma_adi = st.text_input("Firma Adı")
+        sektor_sec = st.selectbox("Sektör", ["Demir-Çelik", "Makine İmalat", "Plastik Enjeksiyon"])
+        atik_secenekleri = turikler[sektor_sec]
+        atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri)
+        miktar = st.number_input("Satmak istediğiniz ürün miktarı (kg)", min_value=1)
+        fiyat = st.number_input("Ürünü ne kadara satmak istiyorsunuz? (TL/kg)", min_value=0.0)
+        kaydet_buton = st.button("KAYDIMI TAMAMLA")
+
+        if kaydet_buton:
+            yeni_id = f"Firma {len(firma_koordinatlari) + 1}"
+            gps = (41.01 + 0.001 * len(st.session_state["yeni_firmalar"]), 39.72 + 0.001 * len(st.session_state["yeni_firmalar"]))
+            firma_koordinatlari[yeni_id] = gps
+            firma_bilgileri[yeni_id] = {
+                "sektor": sektor_sec,
+                "atik": atik_turu,
+                "fiyat": fiyat,
+                "miktar": miktar
+            }
+            st.session_state["yeni_firmalar"].append(yeni_id)
+            st.success(f"{yeni_id} başarıyla eklendi!")
 
 # -------------------- FİRMA TABLOSU ----------------------
 
@@ -135,6 +159,18 @@ df = pd.DataFrame(firma_bilgileri_tablo)
 st.subheader("Firma Bilgileri")
 st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar ve fiyat bilgilerini göstermektedir.")
 st.dataframe(df)
+# Yeni eklenen firmalar için silme butonu
+st.subheader("Yeni Eklenen Firmalar")
+for firma in st.session_state["yeni_firmalar"]:
+    col1, col2 = st.columns([5, 1])
+    with col1:
+        st.markdown(f"**{firma}** - {firma_bilgileri[firma]['sektor']} - {firma_bilgileri[firma]['atik']} ({firma_bilgileri[firma]['miktar']} kg)")
+    with col2:
+        if st.button("Firmayı Sil", key=f"sil_{firma}"):
+            st.session_state["yeni_firmalar"].remove(firma)
+            del firma_bilgileri[firma]
+            del firma_koordinatlari[firma]
+            st.experimental_rerun()
 
 # -------------------- MODEL ----------------------
 
