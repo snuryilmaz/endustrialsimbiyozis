@@ -12,4 +12,5 @@ openpyxl
 
 # Pyomo ve açık kaynak çözücüler (GLPK, CBC, COIN-OR vb.)
 pyomo[solvers]
-
+pyomo
+coin-or-cbc   # CBC solver için
