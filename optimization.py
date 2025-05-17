@@ -1,91 +1,48 @@
-import pandas as pd
+# optimizasyon.py
+
 import pulp
 
-def optimize_waste_allocation(excel_path):
-    # Excel dosyasını oku
-    df_S = pd.read_excel(excel_path, sheet_name="Uretim_Miktari")
-    df_D = pd.read_excel(excel_path, sheet_name="Talep_Miktari")
-    df_T = pd.read_excel(excel_path, sheet_name="Tasima_Maliyeti")
+def optimize_waste_allocation_from_dict(firma_bilgileri, tasima_maliyeti):
+    firmalar = list(firma_bilgileri.keys())
+    atik_turleri = list(set([v["atik"] for v in firma_bilgileri.values()]))
 
-    firmalar = sorted(set(df_S["Firma"]) | set(df_D["Firma"]))
-    atik_turleri = sorted(set(df_S["AtikTuru"]) | set(df_D["AtikTuru"]))
+    # Üretim miktarı ve fiyatları
+    uretim = {(f, firma_bilgileri[f]["atik"]): firma_bilgileri[f]["miktar"] for f in firmalar}
+    fiyatlar = {f: firma_bilgileri[f]["fiyat"] for f in firmalar}
 
-    uretim = {(r["Firma"], r["AtikTuru"]): r["UretimMiktari"] for _, r in df_S.iterrows()}
-    talep = {(r["Firma"], r["AtikTuru"]): r["TalepMiktari"] for _, r in df_D.iterrows()}
-    maliyet = {(r["Gonderen"], r["Alici"]): r["Maliyet"] for _, r in df_T.iterrows()}
+    # Model
+    model = pulp.LpProblem("Atik_Tasima_Optimizasyonu", pulp.LpMinimize)
 
-    # Uyum matrisi
-    Cijk = {}
-    for i in firmalar:
-        for j in firmalar:
-            for k in atik_turleri:
-                if i != j:
-                    Cijk[(i, j, k)] = int(uretim.get((i, k), 0) > 0 and talep.get((j, k), 0) > 0)
-                else:
-                    Cijk[(i, j, k)] = 0
-
-    uretim_toplam = df_S.groupby("AtikTuru")["UretimMiktari"].sum()
-    talep_toplam = df_D.groupby("AtikTuru")["TalepMiktari"].sum()
-    Qk = {k: min(uretim_toplam.get(k, 0), talep_toplam.get(k, 0)) for k in atik_turleri}
-
-    # Model oluştur
-    model = pulp.LpProblem("Endustriyel_Simbiyoz", pulp.LpMinimize)
-
-    # Karar değişkenleri
+    # Karar değişkenleri: x[i][j][k] -> i firmasından j firmasına k atık türünde taşınan miktar
     x = pulp.LpVariable.dicts("x",
-        ((i, j, k) for i in firmalar for j in firmalar for k in atik_turleri),
-        lowBound=0, cat="Continuous")
-
-    # Amaç fonksiyonu
-    model += pulp.lpSum(
-        maliyet.get((i, j), 0) * x[i, j, k]
-        for i in firmalar for j in firmalar for k in atik_turleri if i != j
+        ((i, j, k) for i in firmalar for j in firmalar for k in atik_turleri if i != j),
+        lowBound=0,
+        cat="Continuous"
     )
 
-    # Üretim kısıtı
+    # Amaç fonksiyonu: Toplam taşıma maliyetini minimize et
+    model += pulp.lpSum(
+        x[i, j, k] * tasima_maliyeti.get((i, j), 9999)
+        for (i, j, k) in x
+    )
+
+    # Üretim (arz) kısıtı: Bir firmanın gönderebileceği atık kendi miktarını aşamaz
     for i in firmalar:
         for k in atik_turleri:
-            model += pulp.lpSum(x[i, j, k] for j in firmalar if j != i) <= uretim.get((i, k), 0)
+            model += pulp.lpSum(x[i, j, k] for j in firmalar if i != j and (i, j, k) in x) <= \
+                     uretim.get((i, k), 0)
 
-    # Talep kısıtı
-    for j in firmalar:
-        for k in atik_turleri:
-            model += pulp.lpSum(x[i, j, k] for i in firmalar if i != j) <= talep.get((j, k), 0)
+    # Talep kısıtı örneği (opsiyonel, basit haliyle)
+    # Burada her firmanın aldığı toplam atık >= 0 gibi, spesifik talep yoksa es geçilebilir
 
-    # Kendi kendine akış olmasın
-    for f in firmalar:
-        for k in atik_turleri:
-            model += x[f, f, k] == 0
-
-    # Uyum kısıtı (compatible ise izin ver)
-    for i in firmalar:
-        for j in firmalar:
-            for k in atik_turleri:
-                model += x[i, j, k] <= Cijk[(i, j, k)] * 1e5
-
-    # Denge kısıtı
-    for k in atik_turleri:
-        model += pulp.lpSum(x[i, j, k] for i in firmalar for j in firmalar if i != j) == Qk[k]
-
-    # Minimum gönderim (ör: 100 kg ve uyumluysa)
-    min_threshold = 100
-    for i in firmalar:
-        for j in firmalar:
-            for k in atik_turleri:
-                model += x[i, j, k] >= min_threshold * Cijk[(i, j, k)]
-
-    # CBC ile çöz (varsayılan)
+    # Çöz
     model.solve()
 
-    # Sonuçlar
-    if pulp.LpStatus[model.status] == "Optimal":
-        results_list = []
-        for i in firmalar:
-            for j in firmalar:
-                for k in atik_turleri:
-                    val = x[i, j, k].varValue
-                    if val is not None and val > 0:
-                        results_list.append({"Gonderen": i, "Alici": j, "AtikTuru": k, "Miktar": val})
-        return results_list, pulp.value(model.objective)
-    else:
-        return None, None
+    # Sonuçları listele
+    results_list = []
+    for (i, j, k), var in x.items():
+        if var.varValue and var.varValue > 0:
+            results_list.append({"Gonderen": i, "Alici": j, "AtikTuru": k, "Miktar": var.varValue})
+
+    total_cost = pulp.value(model.objective)
+    return results_list, total_cost, pulp.LpStatus[model.status]
