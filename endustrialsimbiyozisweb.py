@@ -18,12 +18,10 @@ st.markdown(
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
-
     .stApp {
         background-color: rgba(255, 255, 255, 0.6);
         padding-top: 80px;
     }
-
     .logo-container {
         position: fixed;
         top: 15px;
@@ -34,11 +32,9 @@ st.markdown(
         border-radius: 12px;
         box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-
     .logo-container img {
         height: 100px;
     }
-
     h1, h2, h3, h4, h5, h6 {
         color: #2e7d32 !important;
     }
@@ -186,12 +182,12 @@ except:
 
 if secim == "Ürün almak istiyorum" and uygulama_butonu:
     excel_path = "endustriyel_simbiyoz_model_guncel.xlsx"
-    results, total_cost, solver_name = optimize_waste_allocation(excel_path)
-    
+    results, total_cost = optimize_waste_allocation(excel_path)
+
     if results is None:
-        st.error(f"Optimizasyon modeli çözülemedi! (Kullanılan solver: {solver_name})")
+        st.error("Optimizasyon modeli çözülemedi!")
     else:
-        st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL (Solver: {solver_name})")
+        st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL")
 
         st.header("Şebeke Grafiği")
         grafik = nx.DiGraph()
@@ -214,12 +210,12 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
         nx.draw_networkx_edges(grafik, pos, edge_color=kenar_renkleri, width=2)
         plt.title("Optimal Taşıma Şebekesi")
-        st.pyplot(plt)1023,
+        st.pyplot(plt)
 
-        # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
-
+# -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
 qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
 qr = qrcode.make(qr_link)
 qr_buffer = io.BytesIO()
 qr.save(qr_buffer)
 st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
