@@ -1,5 +1,4 @@
 streamlit
-pulp
 networkx
 matplotlib
 qrcode
@@ -15,3 +14,7 @@ pyomo[solvers]
 pyomo
 coin-or-cbc   # CBC solver için
 glpk
+
+qrcode
+uuid
+
