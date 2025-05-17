@@ -2,7 +2,7 @@
 
 import pandas as pd
 import pyomo.environ as pe
-from pyomo.opt import SolverFactory
+from pyomo.opt import SolverFactory, TerminationCondition, SolverStatus
 
 def optimize_waste_allocation(excel_path):
     # Excel dosyasını oku
@@ -39,7 +39,6 @@ def optimize_waste_allocation(excel_path):
     model.cost = pe.Param(model.F, model.F, model.K, initialize=lambda m, i, j, k: maliyet.get((i, j), 0))
     model.compatibility = pe.Param(model.F, model.F, model.K, initialize=lambda m, i, j, k: Cijk.get((i, j, k), 0))
     model.Qk = pe.Param(model.K, initialize=Qk)
-
     model.x = pe.Var(model.F, model.F, model.K, domain=pe.NonNegativeReals)
 
     def obj_rule(m):
@@ -72,16 +71,20 @@ def optimize_waste_allocation(excel_path):
     model.min_shipment_con = pe.Constraint(model.F, model.F, model.K, rule=min_shipment_rule)
 
     solver = SolverFactory("gurobi")
-    results = solver.solve(model)
+    results = solver.solve(model, tee=True)
 
-    if results.solver.status == pe.SolverStatus.ok and results.solver.termination_condition == pe.TerminationCondition.optimal:
+    if (results.solver.status == SolverStatus.ok) and \
+       (results.solver.termination_condition == TerminationCondition.optimal):
         results_list = []
         for i in model.F:
             for j in model.F:
                 for k in model.K:
                     val = pe.value(model.x[i, j, k])
                     if val and val > 0:
-                        results_list.append((i, j, k, val))
+                        results_list.append({"Gonderen": i, "Alici": j, "AtikTuru": k, "Miktar": val})
         return results_list, pe.value(model.obj)
     else:
+        print("Çözüm bulunamadı veya model optimal değil!")
+        print("Status:", results.solver.status)
+        print("Termination:", results.solver.termination_condition)
         return None, None
