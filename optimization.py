@@ -5,14 +5,17 @@ import pyomo.environ as pe
 from pyomo.opt import SolverFactory, TerminationCondition, SolverStatus
 
 def solve_model(model):
-    # Sırayla Gurobi, CBC, GLPK dene
     for solver_name in ['gurobi', 'cbc', 'glpk']:
         solver = SolverFactory(solver_name)
         if solver.available():
             print(f"{solver_name.upper()} kullanılıyor...")
             results = solver.solve(model, tee=True)
             return results, solver_name
-    raise RuntimeError("Hiçbir uygun solver bulunamadı! Lütfen CBC veya GLPK yükleyin.")
+    # Uygun solver yoksa kullanıcıya Streamlit arayüzünden hata ver
+    import streamlit as st
+    st.error("Hiçbir uygun solver bulunamadı! Lütfen CBC veya GLPK yüklendiğinden emin olun.")
+    raise RuntimeError("Hiçbir uygun solver bulunamadı!")
+
 
 def optimize_waste_allocation(excel_path):
     # Excel dosyasını oku
