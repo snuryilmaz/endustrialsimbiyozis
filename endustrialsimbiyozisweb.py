@@ -51,8 +51,6 @@ st.markdown(
 )
 
 # -------------------- SABİT VERİLER ----------------------
-
-# Varsayılan firmalar
 varsayilan_firmalar = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
     "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200},
@@ -135,12 +133,13 @@ with st.sidebar:
 
     # Firma silme bölümü
     st.subheader("Firma Silme")
-    silinecek_firma = st.selectbox("Silinecek Firma", st.session_state["yeni_firmalar"])
-    if st.button("Firmayı Sil"):
-        st.session_state["yeni_firmalar"].remove(silinecek_firma)
-        firma_bilgileri.pop(silinecek_firma, None)
-        firma_koordinatlari.pop(silinecek_firma, None)
-        st.success(f"{silinecek_firma} başarıyla silindi!")
+    if st.session_state["yeni_firmalar"]:
+        silinecek_firma = st.selectbox("Silinecek Firma", st.session_state["yeni_firmalar"])
+        if st.button("Firmayı Sil"):
+            st.session_state["yeni_firmalar"].remove(silinecek_firma)
+            firma_bilgileri.pop(silinecek_firma, None)
+            firma_koordinatlari.pop(silinecek_firma, None)
+            st.success(f"{silinecek_firma} başarıyla silindi!")
 
 # -------------------- FİRMA TABLOSU ----------------------
 firma_bilgileri_tablo = {
@@ -162,27 +161,27 @@ except:
     alici_koordinati = (0.0, 0.0)
 
 if secim == "Ürün almak istiyorum" and uygulama_butonu:
-    results, total_cost, karsilanan_miktar = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
-    if results is None or karsilanan_miktar == 0:
+    sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
+    if sonuc is None or toplam_alinan == 0:
         st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
     else:
-        eksik = miktar - karsilanan_miktar
+        eksik = miktar - toplam_alinan
         if eksik > 0:
-            st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {karsilanan_miktar} kg karşılandı.")
+            st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
         else:
-            st.success(f"Tüm talebiniz karşılandı! {karsilanan_miktar} kg ürün teslim edilecek.")
+            st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
 
-        st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL")
+        st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
 
         # Sonuç Tablosu
         st.write("**Satın Alım Dağılımı:**")
-        st.dataframe(pd.DataFrame(results))
+        st.dataframe(pd.DataFrame(sonuc))
 
         # Şebeke Grafiği
         st.header("Şebeke Grafiği")
         grafik = nx.DiGraph()
         grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
-        for row in results:
+        for row in sonuc:
             src = row["Gonderen"]
             dst = row["Alici"]
             miktar_flow = row["Miktar"]
