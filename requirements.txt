@@ -14,3 +14,4 @@ openpyxl
 pyomo[solvers]
 pyomo
 coin-or-cbc   # CBC solver için
+glpk
