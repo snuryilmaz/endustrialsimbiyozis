@@ -14,7 +14,6 @@ pyomo[solvers]
 pyomo
 coin-or-cbc   # CBC solver için
 glpk
-
-qrcode
+py-cbc  
 uuid
 
