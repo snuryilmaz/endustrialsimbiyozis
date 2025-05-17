@@ -1,73 +1,16 @@
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
-from geopy.distance import geodesic
 import pandas as pd
 import qrcode
 import io
-import uuid  # benzersiz ID üretimi için
 from optimization import optimize_waste_allocation
 
-# -------------------- STİL ----------------------
-st.markdown(
-    """
-    <style>
-    body {
-        background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-    .stApp {
-        background-color: rgba(255, 255, 255, 0.6);
-        padding-top: 80px;
-    }
-    .logo-container {
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        z-index: 9999;
-        background-color: white;
-        padding: 10px;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    .logo-container img {
-        height: 100px;
-    }
-    h1, h2, h3, h4, h5, h6 {
-        color: #2e7d32 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    """
-    <div class="logo-container">
-        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Logo">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# -------------------- SABİT VERİLER (BAŞLANGIÇ) ----------------------
+# --------- SABİT VERİLER ----------
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
     "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"]
-}
-
-firma_koordinatlari = {
-    "Firma 1": (41.0105, 39.7266),
-    "Firma 2": (40.9900, 39.7200),
-    "Firma 3": (41.0200, 39.7400),
-    "Firma 4": (41.0005, 39.7050),
-    "Firma 5": (41.0150, 39.7300),
-    "Firma 6": (41.0250, 39.7350),
-    "Firma 7": (41.0300, 39.7400),
-    "Firma 8": (41.0350, 39.7450),
 }
 
 default_firmalar = {
@@ -81,7 +24,6 @@ default_firmalar = {
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400},
 }
 
-# -------------------- SESSION'DA KALICI FİRMALAR ----------------------
 if "firma_bilgileri" not in st.session_state:
     st.session_state["firma_bilgileri"] = default_firmalar.copy()
 if "yeni_firmalar" not in st.session_state:
@@ -89,15 +31,33 @@ if "yeni_firmalar" not in st.session_state:
 
 firma_bilgileri = st.session_state["firma_bilgileri"]
 
-# -------------------- SIDEBAR ----------------------
+# --------- ARAYÜZ/STİL ----------
+st.markdown(
+    """
+    <style>
+    body {background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');background-size: cover;background-repeat: no-repeat;}
+    .stApp {background-color: rgba(255,255,255,0.6);}
+    .logo-container {position: fixed;top: 15px;right: 15px;z-index: 9999;background-color: white;padding: 10px;border-radius: 12px;box-shadow: 0 0 10px rgba(0,0,0,0.2);}
+    .logo-container img {height: 100px;}
+    h1, h2, h3, h4, h5, h6 {color: #2e7d32 !important;}
+    </style>
+    """, unsafe_allow_html=True
+)
+st.markdown(
+    """<div class="logo-container">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Logo">
+    </div>""",
+    unsafe_allow_html=True
+)
+
+st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
+st.subheader("Endüstriyel Simbiyoz Nedir?")
+st.write("Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.")
+
+# --------- SIDEBAR KULLANICI ---------
 with st.sidebar:
     st.title("Kullanıcı Seçimi")
-
-    secim = st.radio(
-        "Ne yapmak istiyorsunuz?",
-        ["Ürün almak istiyorum", "Satıcı kaydı yapmak istiyorum"],
-        index=0
-    )
+    secim = st.radio("Ne yapmak istiyorsunuz?", ["Ürün almak istiyorum", "Satıcı kaydı yapmak istiyorum"], index=0)
 
     if secim == "Ürün almak istiyorum":
         st.header("Alıcı Bilgileri")
@@ -106,7 +66,6 @@ with st.sidebar:
         sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
         atik_turu = st.selectbox("Atık Türü", turikler[sektor])
         miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=1000)
-        koordinatlar = st.text_input("Kullanıcı GPS Koordinatları (enlem, boylam)", "41.0000,39.7000")
         uygulama_butonu = st.button("Uygulamayı Çalıştır")
 
     elif secim == "Satıcı kaydı yapmak istiyorum":
@@ -118,11 +77,8 @@ with st.sidebar:
         miktar = st.number_input("Satmak istediğiniz ürün miktarı (kg)", min_value=1)
         fiyat = st.number_input("Ürünü ne kadara satmak istiyorsunuz? (TL/kg)", min_value=0.0)
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
-
         if kaydet_buton and firma_adi.strip():
             yeni_id = firma_adi.strip()
-            gps = (41.01 + 0.001 * len(st.session_state["yeni_firmalar"]), 39.72 + 0.001 * len(st.session_state["yeni_firmalar"]))
-            firma_koordinatlari[yeni_id] = gps
             st.session_state["firma_bilgileri"][yeni_id] = {
                 "sektor": sektor_sec,
                 "atik": atik_turu,
@@ -131,19 +87,16 @@ with st.sidebar:
             }
             st.session_state["yeni_firmalar"].append(yeni_id)
             st.success(f"{yeni_id} başarıyla eklendi!")
-
-    # Firma Silme
     st.header("Firma Silme")
     silinecek = st.selectbox("Silinecek Firma", [""] + list(firma_bilgileri.keys()))
     if st.button("Firmayı Sil") and silinecek:
         st.session_state["firma_bilgileri"].pop(silinecek, None)
         if silinecek in st.session_state["yeni_firmalar"]:
             st.session_state["yeni_firmalar"].remove(silinecek)
-        firma_koordinatlari.pop(silinecek, None)
         st.warning(f"{silinecek} silindi!")
         st.experimental_rerun()
 
-# -------------------- FİRMA TABLOSU ----------------------
+# --------- TABLO ----------
 firma_bilgileri_tablo = {
     "Firma Adı": list(firma_bilgileri.keys()),
     "Sektör": [v["sektor"] for v in firma_bilgileri.values()],
@@ -151,61 +104,47 @@ firma_bilgileri_tablo = {
     "Miktar (kg)": [v["miktar"] for v in firma_bilgileri.values()],
     "Fiyat (TL/kg)": [v["fiyat"] for v in firma_bilgileri.values()]
 }
-
 df = pd.DataFrame(firma_bilgileri_tablo)
 st.subheader("Firma Bilgileri")
-st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar ve fiyat bilgilerini göstermektedir.")
 st.dataframe(df)
 
-# Yeni eklenen firmalar için gösterim
 st.subheader("Yeni Eklenen Firmalar")
 for firma in st.session_state["yeni_firmalar"]:
-    col1, col2 = st.columns([5, 1])
     if firma in firma_bilgileri:
         sektor = firma_bilgileri[firma]['sektor']
         atik = firma_bilgileri[firma]['atik']
         miktar = firma_bilgileri[firma]['miktar']
         fiyat = firma_bilgileri[firma]['fiyat']
-        with col1:
-            st.markdown(f"**{firma}** - {sektor} - {atik} ({miktar} kg, {fiyat} TL/kg)")
+        st.markdown(f"**{firma}** - {sektor} - {atik} ({miktar} kg, {fiyat} TL/kg)")
 
-# -------------------- MODEL ----------------------
-
-try:
-    alici_koordinati = tuple(map(float, koordinatlar.split(",")))
-except:
-    alici_koordinati = (0.0, 0.0)
-
+# --------- MODEL VE ŞEBEKE ---------
 if secim == "Ürün almak istiyorum" and uygulama_butonu:
-    results, total_cost = optimize_waste_allocation(firma_bilgileri)
-    if results is None:
-        st.error("Optimizasyon modeli çözülemedi!")
+    results, toplam_maliyet, uygun_firmalar = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
+    if not results:
+        st.error("Talebinizi karşılayacak firma yok veya miktar uygun değil!")
     else:
-        st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL")
-
+        st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
         st.header("Şebeke Grafiği")
-        grafik = nx.DiGraph()
-        grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+        g = nx.DiGraph()
+        g.add_node("Siz")
         for row in results:
-            src = row["Gonderen"]
-            dst = row["Alici"]
-            miktar_flow = row["Miktar"]
-            grafik.add_node(src, pos=(firma_koordinatlari.get(src, (0, 0))[1], firma_koordinatlari.get(src, (0, 0))[0]))
-            grafik.add_node(dst, pos=(firma_koordinatlari.get(dst, (0, 0))[1], firma_koordinatlari.get(dst, (0, 0))[0]))
-            renk = "green" if miktar_flow > 0 else "gray"
-            grafik.add_edge(src, dst, mesafe=f"{miktar_flow:.2f} kg", renk=renk)
-
-        pos = nx.get_node_attributes(grafik, 'pos')
-        kenar_renkleri = [grafik[u][v]['renk'] for u, v in grafik.edges()]
-        etiketler = {(u, v): grafik[u][v]['mesafe'] for u, v in grafik.edges()}
-
-        nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=3000, font_size=10, font_weight="bold")
-        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
-        nx.draw_networkx_edges(grafik, pos, edge_color=kenar_renkleri, width=2)
-        plt.title("Optimal Taşıma Şebekesi")
+            firma = row["Firma"]
+            g.add_node(firma)
+            g.add_edge(firma, "Siz", label=f"{row['AlinanMiktar']:.0f} kg\n{row['BirimFiyat']} TL/kg")
+        pos = nx.spring_layout(g)
+        plt.figure(figsize=(6, 4))
+        nx.draw(g, pos, with_labels=True, node_color=["#95d5b2" if n=="Siz" else "#ffd6a5" for n in g.nodes()], node_size=2500, font_size=12)
+        nx.draw_networkx_edge_labels(g, pos, edge_labels={(u, v): d["label"] for u, v, d in g.edges(data=True)}, font_size=10)
+        plt.axis('off')
         st.pyplot(plt)
 
-# -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
+        # Özet
+        st.markdown("### Eşleşme Sonucu")
+        for row in results:
+            st.markdown(f"- {row['Firma']}'dan **{row['AlinanMiktar']:.0f} kg** alınacak. ({row['BirimFiyat']} TL/kg → {row['Tutar']:.0f} TL)")
+        st.markdown(f"**Toplam maliyet:** {toplam_maliyet:.0f} TL")
+
+# --------- QR KODU HER ZAMAN GÖSTER ---------
 qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
 qr = qrcode.make(qr_link)
 qr_buffer = io.BytesIO()
