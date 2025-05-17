@@ -3,19 +3,19 @@
 import pandas as pd
 import pyomo.environ as pe
 from pyomo.opt import SolverFactory, TerminationCondition, SolverStatus
+import streamlit as st
 
 def solve_model(model):
-    for solver_name in ['gurobi', 'cbc', 'glpk']:
-        solver = SolverFactory(solver_name)
-        if solver.available():
-            print(f"{solver_name.upper()} kullanılıyor...")
-            results = solver.solve(model, tee=True)
-            return results, solver_name
-    # Uygun solver yoksa kullanıcıya Streamlit arayüzünden hata ver
-    import streamlit as st
-    st.error("Hiçbir uygun solver bulunamadı! Lütfen CBC veya GLPK yüklendiğinden emin olun.")
-    raise RuntimeError("Hiçbir uygun solver bulunamadı!")
-
+    # Sadece CBC denesin, yoksa hata versin
+    solver = SolverFactory('cbc')
+    if solver.available():
+        st.info("CBC solver kullanılıyor...")
+        results = solver.solve(model, tee=True)
+        solver_name = 'cbc'
+        return results, solver_name
+    else:
+        st.error("CBC çözücüsü bulunamadı! Lütfen requirements.txt dosyanıza py-cbc eklediğinizden ve ortamda yüklü olduğundan emin olun.")
+        raise RuntimeError("CBC çözücüsü bulunamadı!")
 
 def optimize_waste_allocation(excel_path):
     # Excel dosyasını oku
@@ -41,7 +41,7 @@ def optimize_waste_allocation(excel_path):
                     Cijk[(i, j, k)] = 0
 
     uretim_toplam = df_S.groupby("AtikTuru")["UretimMiktari"].sum()
-    talep_toplam = df_D.groupby("AtikTuru")["Talep_Miktari"].sum()
+    talep_toplam = df_D.groupby("AtikTuru")["TalepMiktari"].sum()
     Qk = {k: min(uretim_toplam.get(k, 0), talep_toplam.get(k, 0)) for k in atik_turleri}
 
     # PYOMO Modeli
@@ -87,7 +87,7 @@ def optimize_waste_allocation(excel_path):
         return m.x[i, j, k] >= min_threshold * m.compatibility[i, j, k]
     model.min_shipment_con = pe.Constraint(model.F, model.F, model.K, rule=min_shipment_rule)
 
-    # Çözüm: Otomatik solver seçimi ile
+    # Sadece CBC çözücü ile modeli çöz
     results, solver_name = solve_model(model)
 
     # Sonuçları döndür
@@ -102,7 +102,6 @@ def optimize_waste_allocation(excel_path):
                         results_list.append({"Gonderen": i, "Alici": j, "AtikTuru": k, "Miktar": val})
         return results_list, pe.value(model.obj), solver_name
     else:
-        print("Çözüm bulunamadı veya model optimal değil!")
-        print("Status:", results.solver.status)
-        print("Termination:", results.solver.termination_condition)
+        st.error("Çözüm bulunamadı veya model optimal değil!")
+        st.warning(f"Status: {results.solver.status}, Termination: {results.solver.termination_condition}")
         return None, None, solver_name
