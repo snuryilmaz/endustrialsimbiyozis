@@ -52,19 +52,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# -------------------- SAYFA BAŞI ----------------------
-
-st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
-st.subheader("Endüstriyel Simbiyoz Nedir?")
-st.write(
-    """
-    Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
-    Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
-    """
-)
-
-# -------------------- SABİT VERİLER ----------------------
-
+# -------------------- SABİT VERİLER (BAŞLANGIÇ) ----------------------
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
@@ -82,7 +70,7 @@ firma_koordinatlari = {
     "Firma 8": (41.0350, 39.7450),
 }
 
-firma_bilgileri = {
+default_firmalar = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
     "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200},
     "Firma 3": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 15, "miktar": 150},
@@ -93,12 +81,15 @@ firma_bilgileri = {
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400},
 }
 
-# -------------------- SIDEBAR ----------------------
-
-# GLOBAL: Eklenen firmalar burada tutulacak
+# -------------------- SESSION'DA KALICI FİRMALAR ----------------------
+if "firma_bilgileri" not in st.session_state:
+    st.session_state["firma_bilgileri"] = default_firmalar.copy()
 if "yeni_firmalar" not in st.session_state:
     st.session_state["yeni_firmalar"] = []
 
+firma_bilgileri = st.session_state["firma_bilgileri"]
+
+# -------------------- SIDEBAR ----------------------
 with st.sidebar:
     st.title("Kullanıcı Seçimi")
 
@@ -121,18 +112,18 @@ with st.sidebar:
     elif secim == "Satıcı kaydı yapmak istiyorum":
         st.header("Satıcı Kaydı")
         firma_adi = st.text_input("Firma Adı")
-        sektor_sec = st.selectbox("Sektör", ["Demir-Çelik", "Makine İmalat", "Plastik Enjeksiyon"])
+        sektor_sec = st.selectbox("Sektör", list(turikler.keys()))
         atik_secenekleri = turikler[sektor_sec]
         atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri)
         miktar = st.number_input("Satmak istediğiniz ürün miktarı (kg)", min_value=1)
         fiyat = st.number_input("Ürünü ne kadara satmak istiyorsunuz? (TL/kg)", min_value=0.0)
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
 
-        if kaydet_buton:
-            yeni_id =firma_adi.strip()
+        if kaydet_buton and firma_adi.strip():
+            yeni_id = firma_adi.strip()
             gps = (41.01 + 0.001 * len(st.session_state["yeni_firmalar"]), 39.72 + 0.001 * len(st.session_state["yeni_firmalar"]))
             firma_koordinatlari[yeni_id] = gps
-            firma_bilgileri[yeni_id] = {
+            st.session_state["firma_bilgileri"][yeni_id] = {
                 "sektor": sektor_sec,
                 "atik": atik_turu,
                 "fiyat": fiyat,
@@ -141,8 +132,18 @@ with st.sidebar:
             st.session_state["yeni_firmalar"].append(yeni_id)
             st.success(f"{yeni_id} başarıyla eklendi!")
 
-# -------------------- FİRMA TABLOSU ----------------------
+    # Firma Silme
+    st.header("Firma Silme")
+    silinecek = st.selectbox("Silinecek Firma", [""] + list(firma_bilgileri.keys()))
+    if st.button("Firmayı Sil") and silinecek:
+        st.session_state["firma_bilgileri"].pop(silinecek, None)
+        if silinecek in st.session_state["yeni_firmalar"]:
+            st.session_state["yeni_firmalar"].remove(silinecek)
+        firma_koordinatlari.pop(silinecek, None)
+        st.warning(f"{silinecek} silindi!")
+        st.experimental_rerun()
 
+# -------------------- FİRMA TABLOSU ----------------------
 firma_bilgileri_tablo = {
     "Firma Adı": list(firma_bilgileri.keys()),
     "Sektör": [v["sektor"] for v in firma_bilgileri.values()],
@@ -155,7 +156,8 @@ df = pd.DataFrame(firma_bilgileri_tablo)
 st.subheader("Firma Bilgileri")
 st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar ve fiyat bilgilerini göstermektedir.")
 st.dataframe(df)
-# Yeni eklenen firmalar için silme butonu
+
+# Yeni eklenen firmalar için gösterim
 st.subheader("Yeni Eklenen Firmalar")
 for firma in st.session_state["yeni_firmalar"]:
     col1, col2 = st.columns([5, 1])
@@ -166,12 +168,6 @@ for firma in st.session_state["yeni_firmalar"]:
         fiyat = firma_bilgileri[firma]['fiyat']
         with col1:
             st.markdown(f"**{firma}** - {sektor} - {atik} ({miktar} kg, {fiyat} TL/kg)")
-        with col2:
-            if st.button("Firmayı Sil", key=f"sil_{firma}"):
-                st.session_state["yeni_firmalar"].remove(firma)
-                firma_bilgileri.pop(firma, None)
-                firma_koordinatlari.pop(firma, None)
-                st.experimental_rerun()
 
 # -------------------- MODEL ----------------------
 
@@ -181,9 +177,7 @@ except:
     alici_koordinati = (0.0, 0.0)
 
 if secim == "Ürün almak istiyorum" and uygulama_butonu:
-    excel_path = "endustriyel_simbiyoz_model_guncel.xlsx"
-    results, total_cost = optimize_waste_allocation(excel_path)
-
+    results, total_cost = optimize_waste_allocation(firma_bilgileri)
     if results is None:
         st.error("Optimizasyon modeli çözülemedi!")
     else:
@@ -195,10 +189,9 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         for row in results:
             src = row["Gonderen"]
             dst = row["Alici"]
-            atik = row["AtikTuru"]
             miktar_flow = row["Miktar"]
-            grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
-            grafik.add_node(dst, pos=(firma_koordinatlari[dst][1], firma_koordinatlari[dst][0]))
+            grafik.add_node(src, pos=(firma_koordinatlari.get(src, (0, 0))[1], firma_koordinatlari.get(src, (0, 0))[0]))
+            grafik.add_node(dst, pos=(firma_koordinatlari.get(dst, (0, 0))[1], firma_koordinatlari.get(dst, (0, 0))[0]))
             renk = "green" if miktar_flow > 0 else "gray"
             grafik.add_edge(src, dst, mesafe=f"{miktar_flow:.2f} kg", renk=renk)
 
@@ -218,4 +211,3 @@ qr = qrcode.make(qr_link)
 qr_buffer = io.BytesIO()
 qr.save(qr_buffer)
 st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
-
