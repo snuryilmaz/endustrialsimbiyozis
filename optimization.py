@@ -4,6 +4,16 @@ import pandas as pd
 import pyomo.environ as pe
 from pyomo.opt import SolverFactory, TerminationCondition, SolverStatus
 
+def solve_model(model):
+    # Sırayla Gurobi, CBC, GLPK dene
+    for solver_name in ['gurobi', 'cbc', 'glpk']:
+        solver = SolverFactory(solver_name)
+        if solver.available():
+            print(f"{solver_name.upper()} kullanılıyor...")
+            results = solver.solve(model, tee=True)
+            return results, solver_name
+    raise RuntimeError("Hiçbir uygun solver bulunamadı! Lütfen CBC veya GLPK yükleyin.")
+
 def optimize_waste_allocation(excel_path):
     # Excel dosyasını oku
     df_S = pd.read_excel(excel_path, sheet_name="Uretim_Miktari")
@@ -17,6 +27,7 @@ def optimize_waste_allocation(excel_path):
     talep = {(r["Firma"], r["AtikTuru"]): r["TalepMiktari"] for _, r in df_D.iterrows()}
     maliyet = {(r["Gonderen"], r["Alici"]): r["Maliyet"] for _, r in df_T.iterrows()}
 
+    # Uyum matrisi ve toplam atık
     Cijk = {}
     for i in firmalar:
         for j in firmalar:
@@ -27,9 +38,10 @@ def optimize_waste_allocation(excel_path):
                     Cijk[(i, j, k)] = 0
 
     uretim_toplam = df_S.groupby("AtikTuru")["UretimMiktari"].sum()
-    talep_toplam = df_D.groupby("AtikTuru")["TalepMiktari"].sum()
+    talep_toplam = df_D.groupby("AtikTuru")["Talep_Miktari"].sum()
     Qk = {k: min(uretim_toplam.get(k, 0), talep_toplam.get(k, 0)) for k in atik_turleri}
 
+    # PYOMO Modeli
     model = pe.ConcreteModel()
     model.F = pe.Set(initialize=firmalar)
     model.K = pe.Set(initialize=atik_turleri)
@@ -41,10 +53,12 @@ def optimize_waste_allocation(excel_path):
     model.Qk = pe.Param(model.K, initialize=Qk)
     model.x = pe.Var(model.F, model.F, model.K, domain=pe.NonNegativeReals)
 
+    # Amaç fonksiyonu: Toplam maliyeti minimize et
     def obj_rule(m):
         return sum(m.cost[i, j, k] * m.x[i, j, k] for i in m.F for j in m.F for k in m.K if i != j)
     model.obj = pe.Objective(rule=obj_rule, sense=pe.minimize)
 
+    # Kısıtlar
     def prod_rule(m, i, k):
         return sum(m.x[i, j, k] for j in m.F if j != i) <= m.production[i, k]
     model.prod_con = pe.Constraint(model.F, model.K, rule=prod_rule)
@@ -70,9 +84,10 @@ def optimize_waste_allocation(excel_path):
         return m.x[i, j, k] >= min_threshold * m.compatibility[i, j, k]
     model.min_shipment_con = pe.Constraint(model.F, model.F, model.K, rule=min_shipment_rule)
 
-    solver = SolverFactory("gurobi")
-    results = solver.solve(model, tee=True)
+    # Çözüm: Otomatik solver seçimi ile
+    results, solver_name = solve_model(model)
 
+    # Sonuçları döndür
     if (results.solver.status == SolverStatus.ok) and \
        (results.solver.termination_condition == TerminationCondition.optimal):
         results_list = []
@@ -82,9 +97,9 @@ def optimize_waste_allocation(excel_path):
                     val = pe.value(model.x[i, j, k])
                     if val and val > 0:
                         results_list.append({"Gonderen": i, "Alici": j, "AtikTuru": k, "Miktar": val})
-        return results_list, pe.value(model.obj)
+        return results_list, pe.value(model.obj), solver_name
     else:
         print("Çözüm bulunamadı veya model optimal değil!")
         print("Status:", results.solver.status)
         print("Termination:", results.solver.termination_condition)
-        return None, None
+        return None, None, solver_name
