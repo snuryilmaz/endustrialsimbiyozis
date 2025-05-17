@@ -165,7 +165,7 @@ with st.sidebar:
             eklenenler.append(yeni_firma)
             save_ek_firmalar(eklenenler)
             st.success(f"{yeni_id} başarıyla eklendi!")
-           st.rerun() 
+            st.rerun() 
 
     st.markdown("### Firma Silme")
     eklenenler = load_ek_firmalar()
@@ -175,7 +175,7 @@ with st.sidebar:
         eklenenler = [f for f in eklenenler if f["firma_adi"] != silinecek]
         save_ek_firmalar(eklenenler)
         st.warning(f"{silinecek} silindi!")
-       st.rerun() 
+        st.rerun() 
 
 # ========== FİRMA TABLOSU ==========
 firma_bilgileri_tablo = {
