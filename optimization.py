@@ -1,41 +1,41 @@
+# optimization.py
+
 import pulp
 
-def optimize_waste_allocation(firma_bilgileri, talep_urun, talep_miktar):
-    # Sadece seçilen ürünü satan firmalar
-    uygun_firmalar = {f: info for f, info in firma_bilgileri.items() if info['atik'] == talep_urun and info['miktar'] > 0}
-    if not uygun_firmalar or talep_miktar <= 0:
-        return None, None, []
+def optimize_waste_allocation(firma_bilgileri, atik_turu, talep_miktari):
+    # Sadece seçilen atık türündeki tedarikçileri bul
+    tedarikciler = [f for f, v in firma_bilgileri.items() if v["atik"] == atik_turu and v["miktar"] > 0]
+    if not tedarikciler:
+        return None, 0, []
 
-    # Değişkenler: Her uygun firma için alınacak miktar
-    x = pulp.LpVariable.dicts("alinan", uygun_firmalar.keys(), lowBound=0, cat="Continuous")
+    problem = pulp.LpProblem("AtikOptimizasyon", pulp.LpMinimize)
+    karar_degiskenleri = {f: pulp.LpVariable(f"alis_{f}", lowBound=0, upBound=firma_bilgileri[f]["miktar"], cat="Continuous") for f in tedarikciler}
 
-    # Model
-    model = pulp.LpProblem("AlimOptimizasyonu", pulp.LpMinimize)
-    # Amaç fonksiyonu: toplam maliyet
-    model += pulp.lpSum(x[f] * uygun_firmalar[f]['fiyat'] for f in uygun_firmalar)
+    # Amaç fonksiyonu: Toplam maliyeti minimize et
+    problem += pulp.lpSum([karar_degiskenleri[f] * firma_bilgileri[f]["fiyat"] for f in tedarikciler])
 
-    # Talep kısıtı: toplam alınan miktar >= istenen miktar
-    model += pulp.lpSum(x[f] for f in uygun_firmalar) == talep_miktar
+    # Toplam alınan miktar, talep edilen miktarı aşamaz!
+    problem += pulp.lpSum([karar_degiskenleri[f] for f in tedarikciler]) <= talep_miktari
 
-    # Her firmadan en fazla mevcut miktar alınabilir
-    for f in uygun_firmalar:
-        model += x[f] <= uygun_firmalar[f]['miktar']
+    # Çözüm
+    problem.solve()
 
-    status = model.solve(pulp.PULP_CBC_CMD(msg=0))
-
-    if pulp.LpStatus[model.status] != "Optimal":
-        return None, None, []
-
-    # Sonuçları çıkar
-    results = []
-    for f in uygun_firmalar:
-        miktar = x[f].varValue
-        if miktar and miktar > 0:
-            results.append({
-                "Firma": f,
-                "AlinanMiktar": miktar,
-                "BirimFiyat": uygun_firmalar[f]['fiyat'],
-                "Tutar": miktar * uygun_firmalar[f]['fiyat']
+    # Sonuçları işle
+    sonuc = []
+    toplam_maliyet = 0
+    toplam_alinan = 0
+    for f in tedarikciler:
+        miktar = karar_degiskenleri[f].varValue if karar_degiskenleri[f].varValue else 0
+        if miktar > 0:
+            sonuc.append({
+                "Gonderen": f,
+                "Alici": "Siz",
+                "AtikTuru": atik_turu,
+                "Miktar": miktar,
+                "BirimFiyat": firma_bilgileri[f]["fiyat"],
+                "Maliyet": miktar * firma_bilgileri[f]["fiyat"]
             })
-    toplam_maliyet = sum(r["Tutar"] for r in results)
-    return results, toplam_maliyet, uygun_firmalar
+            toplam_maliyet += miktar * firma_bilgileri[f]["fiyat"]
+            toplam_alinan += miktar
+
+    return sonuc, toplam_maliyet, toplam_alinan
