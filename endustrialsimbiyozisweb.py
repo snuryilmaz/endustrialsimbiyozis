@@ -186,17 +186,21 @@ except:
 
 if secim == "Ürün almak istiyorum" and uygulama_butonu:
     excel_path = "endustriyel_simbiyoz_model_guncel.xlsx"
-    results, total_cost = optimize_waste_allocation(excel_path)
-
+    results, total_cost, solver_name = optimize_waste_allocation(excel_path)
+    
     if results is None:
-        st.error("Optimizasyon modeli çözülemedi!")
+        st.error(f"Optimizasyon modeli çözülemedi! (Kullanılan solver: {solver_name})")
     else:
-        st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL")
+        st.success(f"Toplam Taşıma Maliyeti: {total_cost:.2f} TL (Solver: {solver_name})")
+
         st.header("Şebeke Grafiği")
         grafik = nx.DiGraph()
-
         grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
-        for src, dst, atik, miktar_flow in results:
+        for row in results:
+            src = row["Gonderen"]
+            dst = row["Alici"]
+            atik = row["AtikTuru"]
+            miktar_flow = row["Miktar"]
             grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
             grafik.add_node(dst, pos=(firma_koordinatlari[dst][1], firma_koordinatlari[dst][0]))
             renk = "green" if miktar_flow > 0 else "gray"
@@ -210,10 +214,12 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         nx.draw_networkx_edge_labels(grafik, pos, edge_labels=etiketler, font_size=8)
         nx.draw_networkx_edges(grafik, pos, edge_color=kenar_renkleri, width=2)
         plt.title("Optimal Taşıma Şebekesi")
-        st.pyplot(plt)
+        st.pyplot(plt)1023,
 
-        qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
-        qr = qrcode.make(qr_link)
-        qr_buffer = io.BytesIO()
-        qr.save(qr_buffer)
-        st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+        # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
+
+qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
+qr = qrcode.make(qr_link)
+qr_buffer = io.BytesIO()
+qr.save(qr_buffer)
+st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
