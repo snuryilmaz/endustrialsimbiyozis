@@ -254,6 +254,11 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         plt.axis('off')
         st.pyplot(plt)
         plt.clf()
+st.image(
+    "https://github.com/snuryilmaz/endustrialsimbiyozis/blob/main/endustrialsymbiozis.jpg",
+    caption="Örnek Endüstriyel Simbiyoz Ağı",
+    use_column_width=True
+)
 
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
 qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
