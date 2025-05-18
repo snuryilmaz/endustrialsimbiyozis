@@ -162,43 +162,42 @@ if secim == "Ürün almak istiyorum":
         alici_koordinati = (0.0, 0.0)
 
     if uygulama_butonu:
-        sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_listesi, atik_turu, miktar)
-        if sonuc is None or toplam_alinan == 0:
-            st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
+    sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_listesi, atik_turu, miktar)
+    if sonuc is None or toplam_alinan == 0:
+        st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
+    else:
+        eksik = miktar - toplam_alinan
+        if eksik > 0:
+            st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
         else:
-            eksik = miktar - toplam_alinan
-            if eksik > 0:
-                st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
-            else:
-                st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
+            st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
+        st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
 
-            st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
+        # Sonuç Tablosu
+        if sonuc:
+            st.write("**Satın Alım Dağılımı:**")
+            st.dataframe(pd.DataFrame(sonuc))
 
-            # Sonuç Tablosu
-            if sonuc:
-                st.write("**Satın Alım Dağılımı:**")
-                st.dataframe(pd.DataFrame(sonuc))
-
-            # Şebeke Grafiği
-            st.header("Şebeke Grafiği")
-            grafik = nx.DiGraph()
-            grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
-            for row in sonuc:
-                src = row["Gonderen"]
-                miktar_flow = row["Miktar"]
-                firma = next((f for f in firma_listesi if f["Firma Adı"] == src), None)
-                if firma and "Koordinat" in firma:
-                    lat, lon = map(float, str(firma["Koordinat"]).split(","))
-                    grafik.add_node(src, pos=(lon, lat))
-                    grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
-            pos = nx.get_node_attributes(grafik, 'pos')
-            edge_labels = nx.get_edge_attributes(grafik, 'label')
-            nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=2500, font_size=10, font_weight="bold")
-            nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
-            plt.title("Optimal Taşıma Şebekesi")
-            plt.axis('off')
-            st.pyplot(plt)
-            plt.clf()
+        # Şebeke Grafiği
+        st.header("Şebeke Grafiği")
+        grafik = nx.DiGraph()
+        grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+        for row in sonuc:
+            src = row["Gonderen"]
+            miktar_flow = row["Miktar"]
+            firma = next((f for f in firma_listesi if f["Firma Adı"] == src), None)
+            if firma and "Koordinat" in firma:
+                lat, lon = map(float, str(firma["Koordinat"]).split(","))
+                grafik.add_node(src, pos=(lon, lat))
+                grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
+        pos = nx.get_node_attributes(grafik, 'pos')
+        edge_labels = nx.get_edge_attributes(grafik, 'label')
+        nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=2500, font_size=10, font_weight="bold")
+        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
+        plt.title("Optimal Taşıma Şebekesi")
+        plt.axis('off')
+        st.pyplot(plt)
+        plt.clf()
 
 elif secim == "Satıcı kaydı yapmak istiyorum":
     st.sidebar.header("Satıcı Kaydı")
