@@ -1,2 +1,6 @@
-pulp
+streamlit
 pandas
+matplotlib
+networkx
+qrcode
+pulp
