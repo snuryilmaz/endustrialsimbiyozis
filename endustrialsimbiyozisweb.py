@@ -137,6 +137,7 @@ if "firma_koordinatlari" not in st.session_state:
 
 firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
+varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 
 # -------------------- SIDEBAR ----------------------
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
@@ -187,8 +188,9 @@ with st.sidebar:
                     "fiyat": fiyat,
                     "miktar": miktar
                 }
-                st.session_state["yeni_firmalar"].append(yeni_id)
                 st.success(f"{yeni_id} başarıyla eklendi!")
+            else:
+                st.warning(f"{yeni_id} zaten sistemde mevcut.")
 
       # Firma silme bölümü (sadece yeni eklenenler)
     st.subheader("Firma Silme")
