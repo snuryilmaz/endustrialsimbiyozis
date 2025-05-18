@@ -162,7 +162,7 @@ if secim == "Ürün almak istiyorum":
         alici_koordinati = (0.0, 0.0)
 
     if uygulama_butonu:
-    sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_listesi, atik_turu, miktar)
+        sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_listesi, atik_turu, miktar)
     if sonuc is None or toplam_alinan == 0:
         st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
     else:
