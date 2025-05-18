@@ -257,7 +257,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
 st.image(
     "https://github.com/snuryilmaz/endustrialsimbiyozis/blob/main/endustrialsymbiozis.jpg",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
-    use_column_width=True
+    use_container_width=True
 )
 
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
