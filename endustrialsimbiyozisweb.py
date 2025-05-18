@@ -139,6 +139,7 @@ firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
 
 # -------------------- SIDEBAR ----------------------
+varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 with st.sidebar:
     st.title("Kullanıcı Seçimi")
 
@@ -215,11 +216,6 @@ st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, mi
 st.dataframe(df)
 
 # -------------------- MODEL & ŞEBEKE ----------------------
-try:
-    alici_koordinati = tuple(map(float, koordinatlar.split(",")))
-except:
-    alici_koordinati = (0.0, 0.0)
-
 if secim == "Ürün almak istiyorum" and uygulama_butonu:
     sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
     if sonuc is None or toplam_alinan == 0:
