@@ -189,15 +189,17 @@ with st.sidebar:
                 st.session_state["yeni_firmalar"].append(yeni_id)
                 st.success(f"{yeni_id} başarıyla eklendi!")
 
-    # Firma silme bölümü
+      # Firma silme bölümü (sadece yeni eklenenler)
     st.subheader("Firma Silme")
-    if st.session_state["yeni_firmalar"]:
-        silinecek_firma = st.selectbox("Silinecek Firma", st.session_state["yeni_firmalar"])
+    yeni_firmalar = [f for f in firma_bilgileri if f not in varsayilan_firma_isimleri]
+    if yeni_firmalar:
+        silinecek_firma = st.selectbox("Silinecek Firma", yeni_firmalar)
         if st.button("Firmayı Sil"):
-            st.session_state["yeni_firmalar"].remove(silinecek_firma)
             firma_bilgileri.pop(silinecek_firma, None)
             firma_koordinatlari.pop(silinecek_firma, None)
             st.success(f"{silinecek_firma} başarıyla silindi!")
+    else:
+        st.info("Silinebilecek ek firma yok.")
 
 # -------------------- FİRMA TABLOSU ----------------------
 firma_bilgileri_tablo = {
