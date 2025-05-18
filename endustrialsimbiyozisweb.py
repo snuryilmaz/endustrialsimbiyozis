@@ -81,6 +81,48 @@ def optimize_waste_allocation(firma_listesi, atik_turu, talep_miktari):
     return sonuc, toplam_maliyet, toplam_alinan
 
 # --- STİL VE BAŞLIK ---
+st.markdown(
+    """
+    <style>
+    body {
+        background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    .stApp {
+        background-color: rgba(255, 255, 255, 0.6);
+        padding-top: 80px;
+    }
+    .logo-container {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 9999;
+        background-color: white;
+        padding: 10px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    .logo-container img {
+        height: 100px;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #2e7d32 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Logo">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 st.markdown("""
     <style>
     .green-title {
