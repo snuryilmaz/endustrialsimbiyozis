@@ -156,15 +156,14 @@ with st.sidebar:
         atik_turu = st.selectbox("Atık Türü", turikler[sektor])
         miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=10000, value=100)
         
-    # Sabit koordinatı burada hesapla
-    max_lon = max([koor[1] for koor in firma_koordinatlari.values()])
-    mean_lat = sum([koor[0] for koor in firma_koordinatlari.values()]) / len(firma_koordinatlari)
-    alici_koordinati = (mean_lat, max_lon + 0.02)
-    
-    # Koordinatı kullanıcıya sadece bilgi olarak göster
-    st.info(f"Alıcı noktası otomatik olarak {alici_koordinati[0]:.5f}, {alici_koordinati[1]:.5f} koordinatında konumlandırıldı. (Değiştirilemez)")
-    
-    uygulama_butonu = st.button("Uygulamayı Çalıştır")
+        # Sabit koordinatı burada hesapla
+        max_lon = max([koor[1] for koor in firma_koordinatlari.values()])
+        mean_lat = sum([koor[0] for koor in firma_koordinatlari.values()]) / len(firma_koordinatlari)
+        alici_koordinati = (mean_lat, max_lon + 0.02)
+        
+        # Koordinatı kullanıcıya sadece bilgi olarak göster
+        st.info(f"Alıcı noktası otomatik olarak {alici_koordinati[0]:.5f}, {alici_koordinati[1]:.5f} koordinatında konumlandırıldı. (Değiştirilemez)")
+        uygulama_butonu = st.button("Uygulamayı Çalıştır")
 
 
     elif secim == "Satıcı kaydı yapmak istiyorum":
