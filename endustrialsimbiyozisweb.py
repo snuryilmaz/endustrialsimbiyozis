@@ -4,7 +4,46 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import qrcode
 import io
-from optimization import optimize_waste_allocation
+
+# ------------------ OPTİMİZASYON FONKSİYONU ------------------
+def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
+    uygunlar = []
+    for f_adi, f_bilgi in firmalar.items():
+        if f_bilgi["atik"] == atik_turu and f_bilgi["miktar"] > 0:
+            uygunlar.append({
+                "Firma": f_adi,
+                "Fiyat": f_bilgi["fiyat"],
+                "Miktar": f_bilgi["miktar"]
+            })
+
+    uygunlar.sort(key=lambda x: x["Fiyat"])
+
+    kalan = talep_miktari
+    toplam_maliyet = 0
+    toplam_alinan = 0
+    eslesmeler = []
+
+    for u in uygunlar:
+        alinacak = min(u["Miktar"], kalan)
+        if alinacak <= 0:
+            continue
+        toplam_maliyet += alinacak * u["Fiyat"]
+        toplam_alinan += alinacak
+        eslesmeler.append({
+            "Gonderen": u["Firma"],
+            "Alici": "Siz",
+            "Miktar": alinacak,
+            "Fiyat (TL/kg)": u["Fiyat"],
+            "Tutar": alinacak * u["Fiyat"]
+        })
+        kalan -= alinacak
+        if kalan <= 0:
+            break
+
+    if toplam_alinan == 0:
+        return None, 0, 0
+
+    return eslesmeler, toplam_maliyet, toplam_alinan
 
 # -------------------- STİL ----------------------
 st.markdown(
@@ -195,6 +234,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         plt.title("Optimal Taşıma Şebekesi")
         plt.axis('off')
         st.pyplot(plt)
+        plt.clf()
 
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
 qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
