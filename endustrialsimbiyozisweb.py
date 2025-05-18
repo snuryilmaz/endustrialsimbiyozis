@@ -69,16 +69,6 @@ st.markdown(
         border-radius: 12px;
         box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-    # Başlık
-st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
-
-# Tanıtım Yazısı
-st.subheader("Endüstriyel Simbiyoz Nedir?")
-st.write("""
-Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. 
-Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır. 
-Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
-""")
     .logo-container img {
         height: 100px;
     }
@@ -98,6 +88,16 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+ # Başlık
+st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
+
+# Tanıtım Yazısı
+st.subheader("Endüstriyel Simbiyoz Nedir?")
+st.write("""
+Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. 
+Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır. 
+Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
+""")
 
 
 # -------------------- SABİT VERİLER ----------------------
