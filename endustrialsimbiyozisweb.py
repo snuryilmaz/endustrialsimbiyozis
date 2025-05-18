@@ -4,46 +4,72 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import qrcode
 import io
+import pulp
 
-# ------------------ OPTİMİZASYON FONKSİYONU ------------------
-def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
-    uygunlar = []
-    for f_adi, f_bilgi in firmalar.items():
-        if f_bilgi["atik"] == atik_turu and f_bilgi["miktar"] > 0:
-            uygunlar.append({
-                "Firma": f_adi,
-                "Fiyat": f_bilgi["fiyat"],
-                "Miktar": f_bilgi["miktar"]
-            })
+# -------------------- BAŞLIK VE TANITIM ----------------------
+st.markdown("""
+    <style>
+    .green-title {
+        color: #185C37;
+        font-size: 2.5em;
+        font-weight: bold;
+        margin-bottom: 0.3em;
+    }
+    .green-subheader {
+        color: #185C37;
+        font-size: 1.5em !important;
+        font-weight: bold !important;
+        margin-bottom: 0.2em !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-    uygunlar.sort(key=lambda x: x["Fiyat"])
+st.markdown('<div class="green-title">Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı</div>', unsafe_allow_html=True)
+st.markdown('<div class="green-subheader">Endüstriyel Simbiyoz Nedir?</div>', unsafe_allow_html=True)
+st.write("""
+Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. 
+Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır. 
+Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar. 
+Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır. 
+""")
 
-    kalan = talep_miktari
-    toplam_maliyet = 0
-    toplam_alinan = 0
-    eslesmeler = []
-
-    for u in uygunlar:
-        alinacak = min(u["Miktar"], kalan)
-        if alinacak <= 0:
-            continue
-        toplam_maliyet += alinacak * u["Fiyat"]
-        toplam_alinan += alinacak
-        eslesmeler.append({
-            "Gonderen": u["Firma"],
-            "Alici": "Siz",
-            "Miktar": alinacak,
-            "Fiyat (TL/kg)": u["Fiyat"],
-            "Tutar": alinacak * u["Fiyat"]
-        })
-        kalan -= alinacak
-        if kalan <= 0:
-            break
-
-    if toplam_alinan == 0:
+# -------------------- OPTİMİZASYON FONKSİYONU ----------------------
+def optimize_waste_allocation(firma_bilgileri, atik_turu, talep_miktari):
+    atik_turu_norm = atik_turu.strip().lower()
+    tedarikciler = [
+        f for f, v in firma_bilgileri.items()
+        if str(v["atik"]).strip().lower() == atik_turu_norm and v["miktar"] > 0
+    ]
+    if not tedarikciler:
         return None, 0, 0
 
-    return eslesmeler, toplam_maliyet, toplam_alinan
+    problem = pulp.LpProblem("AtikOptimizasyon", pulp.LpMinimize)
+    karar_degiskenleri = {
+        f: pulp.LpVariable(f"alis_{f}", lowBound=0, upBound=firma_bilgileri[f]["miktar"], cat="Continuous")
+        for f in tedarikciler
+    }
+
+    problem += pulp.lpSum([karar_degiskenleri[f] * firma_bilgileri[f]["fiyat"] for f in tedarikciler])
+    problem += pulp.lpSum([karar_degiskenleri[f] for f in tedarikciler]) <= talep_miktari
+    problem.solve()
+
+    sonuc = []
+    toplam_maliyet = 0
+    toplam_alinan = 0
+    for f in tedarikciler:
+        miktar = karar_degiskenleri[f].varValue if karar_degiskenleri[f].varValue else 0
+        if miktar > 0:
+            sonuc.append({
+                "Gonderen": f,
+                "Alici": "Siz",
+                "Miktar": miktar,
+                "Fiyat (TL/kg)": firma_bilgileri[f]["fiyat"],
+                "Tutar": miktar * firma_bilgileri[f]["fiyat"]
+            })
+            toplam_maliyet += miktar * firma_bilgileri[f]["fiyat"]
+            toplam_alinan += miktar
+
+    return sonuc, toplam_maliyet, toplam_alinan
 
 # -------------------- STİL ----------------------
 st.markdown(
@@ -100,6 +126,8 @@ varsayilan_firmalar = {
     "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200},
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400},
 }
+varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
+
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
@@ -119,8 +147,6 @@ firma_koordinatlari = {
 # -------------------- STATE YÖNETİMİ ----------------------
 if "firma_bilgileri" not in st.session_state:
     st.session_state["firma_bilgileri"] = varsayilan_firmalar.copy()
-if "yeni_firmalar" not in st.session_state:
-    st.session_state["yeni_firmalar"] = []
 if "firma_koordinatlari" not in st.session_state:
     st.session_state["firma_koordinatlari"] = firma_koordinatlari.copy()
 
@@ -158,8 +184,8 @@ with st.sidebar:
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
         if kaydet_buton and firma_adi:
             yeni_id = firma_adi.strip()
-            if yeni_id not in firma_bilgileri:
-                gps = (41.01 + 0.001 * len(st.session_state["yeni_firmalar"]), 39.72 + 0.001 * len(st.session_state["yeni_firmalar"]))
+            if yeni_id not in firma_bilgileri and yeni_id != "":
+                gps = (41.01 + 0.001 * (len(firma_bilgileri)-len(varsayilan_firma_isimleri)), 39.72 + 0.001 * (len(firma_bilgileri)-len(varsayilan_firma_isimleri)))
                 firma_koordinatlari[yeni_id] = gps
                 firma_bilgileri[yeni_id] = {
                     "sektor": sektor_sec,
@@ -167,18 +193,19 @@ with st.sidebar:
                     "fiyat": fiyat,
                     "miktar": miktar
                 }
-                st.session_state["yeni_firmalar"].append(yeni_id)
                 st.success(f"{yeni_id} başarıyla eklendi!")
 
-    # Firma silme bölümü
+    # Firma silme bölümü (sadece yeni eklenenler)
     st.subheader("Firma Silme")
-    if st.session_state["yeni_firmalar"]:
-        silinecek_firma = st.selectbox("Silinecek Firma", st.session_state["yeni_firmalar"])
+    yeni_firmalar = [f for f in firma_bilgileri if f not in varsayilan_firma_isimleri]
+    if yeni_firmalar:
+        silinecek_firma = st.selectbox("Silinecek Firma", yeni_firmalar)
         if st.button("Firmayı Sil"):
-            st.session_state["yeni_firmalar"].remove(silinecek_firma)
             firma_bilgileri.pop(silinecek_firma, None)
             firma_koordinatlari.pop(silinecek_firma, None)
             st.success(f"{silinecek_firma} başarıyla silindi!")
+    else:
+        st.info("Silinebilecek ek firma yok.")
 
 # -------------------- FİRMA TABLOSU ----------------------
 firma_bilgileri_tablo = {
@@ -213,8 +240,9 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
 
         # Sonuç Tablosu
-        st.write("**Satın Alım Dağılımı:**")
-        st.dataframe(pd.DataFrame(sonuc))
+        if sonuc:
+            st.write("**Satın Alım Dağılımı:**")
+            st.dataframe(pd.DataFrame(sonuc))
 
         # Şebeke Grafiği
         st.header("Şebeke Grafiği")
