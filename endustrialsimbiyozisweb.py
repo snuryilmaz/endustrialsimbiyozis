@@ -96,10 +96,10 @@ st.subheader("Endüstriyel Simbiyoz Nedir?")
 st.write("""
 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. 
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır. 
-Bu araç, firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
+Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar. 
+Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri 
+Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır. 
 """)
-
-
 # -------------------- SABİT VERİLER ----------------------
 varsayilan_firmalar = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
