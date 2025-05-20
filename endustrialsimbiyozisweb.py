@@ -16,17 +16,6 @@ if "excel_data" not in st.session_state:
     else:
         # Eğer dosya yoksa, boş bir DataFrame oluştur ve belleğe al
         st.session_state["excel_data"] = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
-    # Bellekteki Excel verisine ekleme yap
-    st.session_state["excel_data"] = pd.concat(
-        [st.session_state["excel_data"], pd.DataFrame([yeni_satir])],
-        ignore_index=True
-    )
-    st.success(f"{firma_adi} başarıyla kaydedildi!")
-
-# Veriyi Dosyaya Yazma (Örnek)
-if st.button("Excel'i Kaydet"):
-    st.session_state["excel_data"].to_excel(excel_path, index=False)
-    st.success("Excel dosyası başarıyla güncellendi!")
 # -------------------------------------------------------------------------
 def get_new_coordinates(existing_coords, num_new_firms):
     """
@@ -181,7 +170,6 @@ firma_koordinatlari = st.session_state["firma_koordinatlari"]
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 
 # -------------------- SIDEBAR ----------------------
-varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 with st.sidebar:
     st.title("Kullanıcı Seçimi")
 
@@ -193,10 +181,6 @@ with st.sidebar:
 
     if secim == "Ürün almak istiyorum":
         st.header("Alıcı Bilgileri")
-        st.markdown("""
-        Sektör seçiminde, yalnızca belirli atık türlerine sahip firmalar seçilebilir.
-        **Atık Türü**: Almak istediğiniz atık türünü seçin. Bu seçenekler şirketin sektörüne göre değişecektir.
-        """)
         ad_soyad = st.text_input("Ad Soyad")
         sirket_adi = st.text_input("Şirket Adı")
         sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
@@ -216,12 +200,6 @@ with st.sidebar:
 
     elif secim == "Satıcı kaydı yapmak istiyorum":
         st.header("Satıcı Kaydı")
-        st.markdown("""
-        **Firma Adı**: Firmanızın adını giriniz. 
-        Bu alan, sistemde daha sonra kullanılacak ve silinmek istendiğinde de kullanılacaktır.
-        **Satmak İstediğiniz Atık Ürün**: Hangi atık türünü satmak istediğinizi seçin. 
-        Sektörünüze bağlı olarak atık türleri sunulacaktır.
-        """)
         firma_adi = st.text_input("Firma Adı")
         sektor_sec = st.selectbox("Sektör", list(turikler.keys()))
         atik_secenekleri = turikler[sektor_sec]
@@ -250,16 +228,16 @@ with st.sidebar:
                 st.session_state["yeni_firmalar"].append(yeni_id) 
                 # EXCEL KAYDI:
                 st.session_state["excel_data"] = pd.concat(
-                [st.session_state["excel_data"], pd.DataFrame([{
-                    "Islem Tipi": "Satıcı Kaydı",
-                    "Firma Adı": firma_adi,
-                    "Sektör": sektor_sec,
-                    "Atık Türü": atik_turu,
-                    "Miktar": miktar,
-                    "Fiyat": fiyat,
-                    "Kullanıcı Adı": "-"
-                }])],
-                ignore_index=True)
+                    [st.session_state["excel_data"], pd.DataFrame([{
+                        "Islem Tipi": "Satıcı Kaydı",
+                        "Firma Adı": firma_adi,
+                        "Sektör": sektor_sec,
+                        "Atık Türü": atik_turu,
+                        "Miktar": miktar,
+                        "Fiyat": fiyat,
+                        "Kullanıcı Adı": "-"
+                    }])],
+                    ignore_index=True)
                 st.session_state["excel_data"].to_excel(excel_path, index=False)
                 st.success(f"{yeni_id} başarıyla eklendi!")
             else:
@@ -327,50 +305,75 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         st.dataframe(pd.DataFrame(sonuc))
 
         # Şebeke Grafiği
-        st.header("Şebeke Grafiği")
-        grafik = nx.DiGraph()
-        grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
-        node_colors = []  # Düğüm renklerini burada tutacağız
-        node_sizes = []   # Düğüm boyutları
-        edge_widths = []  # Kenar kalınlıkları
-        for row in sonuc:
-            src = row["Gonderen"]
-            dst = row["Alici"]
-            miktar_flow = row["Miktar"]
-            if src in firma_koordinatlari:
-                grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
-                grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
-                edge_widths.append(1 + miktar_flow / 50)  # Kenar kalınlığı miktara göre dinamik
+st.header("Şebeke Grafiği")
 
-        # Renkleri ve boyutları ayarla
-        sector_colors = {
-            "Demir-Çelik": "red",
-            "Makine İmalat": "orange",
-            "Plastik Enjeksiyon": "purple"
-        }
-        for node in grafik.nodes:
-            if node == "Siz":
-                node_colors.append("green")  # Alıcı düğümü yeşil
-                node_sizes.append(3000)      # Alıcı düğümü daha büyük
-            else:
-                sektor = firma_bilgileri[node]["sektor"]
-                node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
-                node_sizes.append(2000)  # Gönderici düğümleri daha küçük
-        
-        # Düğüm ve kenarları çiz
-        pos = nx.get_node_attributes(grafik, 'pos')
-        edge_labels = nx.get_edge_attributes(grafik, 'label')
-        nx.draw(grafik, pos, with_labels=True, node_color=node_colors, node_size=2500, font_size=10, font_weight="bold")
-        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
+# Şebeke grafiği için yönlü bir grafik oluştur
+grafik = nx.DiGraph()
 
-        pos = nx.get_node_attributes(grafik, 'pos')
-        edge_labels = nx.get_edge_attributes(grafik, 'label')
-        nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=2500, font_size=10, font_weight="bold")
-        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
-        plt.title("Optimal Taşıma Şebekesi")
-        plt.axis('off')
-        st.pyplot(plt)
-        plt.clf()
+# Alıcı düğümünü (Siz) ekle
+grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+
+# Düğüm renklerini, boyutlarını ve kenar kalınlıklarını tutacak listeler
+node_colors = []  
+node_sizes = []   
+edge_widths = []  
+
+# Gönderici düğümleri ve kenarları ekle
+for row in sonuc:
+    src = row["Gonderen"]
+    dst = row["Alici"]
+    miktar_flow = row["Miktar"]
+
+    if src in firma_koordinatlari:
+        # Gönderici düğümünü ekle
+        grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
+        # Gönderici ile alıcı arasına kenar ekle
+        grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
+
+        # Kenar kalınlığını miktara göre ayarla
+        edge_widths.append(1 + miktar_flow / 50)
+
+# Sektöre göre renk haritası
+sector_colors = {
+    "Demir-Çelik": "red",
+    "Makine İmalat": "orange",
+    "Plastik Enjeksiyon": "purple"
+}
+
+# Düğüm renklerini ve boyutlarını ayarla
+for node in grafik.nodes:
+    if node == "Siz":
+        node_colors.append("green")  # Alıcı düğümü yeşil
+        node_sizes.append(3000)      # Alıcı düğümü daha büyük
+    else:
+        sektor = firma_bilgileri[node]["sektor"]
+        node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
+        node_sizes.append(2000)  # Gönderici düğümleri daha küçük
+
+# Düğüm ve kenarları çiz
+pos = nx.get_node_attributes(grafik, 'pos')
+edge_labels = nx.get_edge_attributes(grafik, 'label')
+
+# Grafik çizimi
+nx.draw(
+    grafik,
+    pos,
+    with_labels=True,
+    node_color=node_colors,
+    node_size=node_sizes,
+    font_size=10,
+    font_weight="bold",
+    edge_color="gray",
+    width=edge_widths  # Kenar kalınlıkları
+)
+# Kenar etiketlerini çiz
+nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
+
+# Grafik ayarları
+plt.title("Optimal Taşıma Şebekesi")
+plt.axis('off')  # Eksenleri kapat
+st.pyplot(plt)
+plt.clf()  # Grafiği sıfırla
         # GRAFİK SONRASI EXCEL İNDİRME BUTONU
         st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
         # Excel indirme butonundan önce açıklama
