@@ -4,7 +4,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import qrcode
 import io
+import os  # <-- BU ÖNEMLİ EXCEL İÇİN!!!
 
+# Excel dosyasını başta bir kere kontrol et ve oluştur
+excel_path = "kayitlar.xlsx"
+if not os.path.exists(excel_path):
+    df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
+    df_init.to_excel(excel_path, index=False)
 # ------------------ OPTİMİZASYON FONKSİYONU ------------------
 def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
     uygunlar = []
@@ -15,7 +21,6 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
                 "Fiyat": f_bilgi["fiyat"],
                 "Miktar": f_bilgi["miktar"]
             })
-
     uygunlar.sort(key=lambda x: x["Fiyat"])
 
     kalan = talep_miktari
@@ -188,6 +193,20 @@ with st.sidebar:
                     "fiyat": fiyat,
                     "miktar": miktar
                 }
+                st.session_state["yeni_firmalar"].append(yeni_id) 
+                # EXCEL KAYDI:
+                df = pd.read_excel(excel_path)
+                yeni_satir = {
+                    "Islem Tipi": "Satıcı Kaydı",
+                    "Firma Adı": firma_adi,
+                    "Sektör": sektor_sec,
+                    "Atık Türü": atik_turu,
+                    "Miktar": miktar,
+                    "Fiyat": fiyat,
+                    "Kullanıcı Adı": "-"
+                }
+                df = pd.concat([df, pd.DataFrame([yeni_satir])], ignore_index=True)
+                df.to_excel(excel_path, index=False)
                 st.success(f"{yeni_id} başarıyla eklendi!")
             else:
                 st.warning(f"{yeni_id} zaten sistemde mevcut.")
@@ -228,6 +247,24 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
             st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
         else:
             st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
+        # EXCEL'E KAYIT EKLE 
+        excel_path = "kayitlar.xlsx"
+        if not os.path.exists(excel_path):
+            df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
+            df_init.to_excel(excel_path, index=False)
+        df = pd.read_excel(excel_path)
+        for row in sonuc:
+            yeni_satir = {
+                "Islem Tipi": "Satın Alma",
+                "Firma Adı": row["Gonderen"],
+                "Sektör": firma_bilgileri[row["Gonderen"]]["sektor"],
+                "Atık Türü": firma_bilgileri[row["Gonderen"]]["atik"],
+                "Miktar": row["Miktar"],
+                "Fiyat": row["Fiyat (TL/kg)"],
+                "Kullanıcı Adı": ad_soyad
+            }
+            df = pd.concat([df, pd.DataFrame([yeni_satir])], ignore_index=True)
+        df.to_excel(excel_path, index=False)
 
         st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
 
@@ -254,6 +291,18 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         plt.axis('off')
         st.pyplot(plt)
         plt.clf()
+        # GRAFİK SONRASI EXCEL İNDİRME BUTONU
+        st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
+        # Excel indirme butonundan önce açıklama
+        excel_path = "kayitlar.xlsx"
+        if os.path.exists(excel_path):
+            with open(excel_path, "rb") as file:
+                st.download_button(
+                    label="🗂️ İşlem Kayıtlarını Excel Olarak İndir",
+                    data=file,
+                    file_name="kayitlar.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.jpg",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
