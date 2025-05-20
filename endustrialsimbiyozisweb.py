@@ -4,13 +4,50 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import qrcode
 import io
+import math
 import os  # <-- BU ÖNEMLİ EXCEL İÇİN!!!
 
 # Excel dosyasını başta bir kere kontrol et ve oluştur
 excel_path = "kayitlar.xlsx"
-if not os.path.exists(excel_path):
-    df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
-    df_init.to_excel(excel_path, index=False)
+if "excel_data" not in st.session_state:
+    if os.path.exists(excel_path):
+        # Eğer dosya varsa, oku ve belleğe al
+        st.session_state["excel_data"] = pd.read_excel(excel_path)
+    else:
+        # Eğer dosya yoksa, boş bir DataFrame oluştur ve belleğe al
+        st.session_state["excel_data"] = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
+    # Bellekteki Excel verisine ekleme yap
+    st.session_state["excel_data"] = pd.concat(
+        [st.session_state["excel_data"], pd.DataFrame([yeni_satir])],
+        ignore_index=True
+    )
+    st.success(f"{firma_adi} başarıyla kaydedildi!")
+
+# Veriyi Dosyaya Yazma (Örnek)
+if st.button("Excel'i Kaydet"):
+    st.session_state["excel_data"].to_excel(excel_path, index=False)
+    st.success("Excel dosyası başarıyla güncellendi!")
+# -------------------------------------------------------------------------
+def get_new_coordinates(existing_coords, num_new_firms):
+    """
+    Yeni firmalar için çember düzeninde koordinatlar oluşturur.
+    existing_coords: Mevcut firma koordinatlarının listesi [(lat, lon), ...]
+    num_new_firms: Eklenmesi gereken yeni firma sayısı
+    """
+    # Çemberin merkezini ve yarıçapını belirle
+    center_lat = sum([coord[0] for coord in existing_coords]) / len(existing_coords)
+    center_lon = sum([coord[1] for coord in existing_coords]) / len(existing_coords)
+    radius = 0.03  # Çemberin yarıçapı (isteğe göre büyütülebilir)
+
+    # Yeni firmaları çember boyunca eşit aralıklarla yerleştir
+    angle_step = 2 * math.pi / num_new_firms  # Her yeni firma için açı aralığı
+    new_coords = []
+    for i in range(num_new_firms):
+        angle = i * angle_step
+        new_lat = center_lat + radius * math.sin(angle)
+        new_lon = center_lon + radius * math.cos(angle)
+        new_coords.append((new_lat, new_lon))
+    return new_coords
 # ------------------ OPTİMİZASYON FONKSİYONU ------------------
 def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
     uygunlar = []
@@ -27,7 +64,6 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
     toplam_maliyet = 0
     toplam_alinan = 0
     eslesmeler = []
-
     for u in uygunlar:
         alinacak = min(u["Miktar"], kalan)
         if alinacak <= 0:
@@ -157,16 +193,21 @@ with st.sidebar:
 
     if secim == "Ürün almak istiyorum":
         st.header("Alıcı Bilgileri")
+        st.markdown("""
+        Sektör seçiminde, yalnızca belirli atık türlerine sahip firmalar seçilebilir.
+        **Atık Türü**: Almak istediğiniz atık türünü seçin. Bu seçenekler şirketin sektörüne göre değişecektir.
+        """)
         ad_soyad = st.text_input("Ad Soyad")
         sirket_adi = st.text_input("Şirket Adı")
         sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
         atik_turu = st.selectbox("Atık Türü", turikler[sektor])
         miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=10000, value=100)
         
-        # Sabit koordinatı burada hesapla
+        # Dinamik olarak alıcı koordinatını hesapla
         max_lon = max([koor[1] for koor in firma_koordinatlari.values()])
+        min_lon = min([koor[1] for koor in firma_koordinatlari.values()])
         mean_lat = sum([koor[0] for koor in firma_koordinatlari.values()]) / len(firma_koordinatlari)
-        alici_koordinati = (mean_lat, max_lon + 0.02)
+        alici_koordinati = (mean_lat, (max_lon + min_lon) / 2)  # Yeni dinamik hesaplama
         
         # Koordinatı kullanıcıya sadece bilgi olarak göster
         st.info(f"Alıcı noktası otomatik olarak {alici_koordinati[0]:.5f}, {alici_koordinati[1]:.5f} koordinatında bulundu.")
@@ -175,6 +216,12 @@ with st.sidebar:
 
     elif secim == "Satıcı kaydı yapmak istiyorum":
         st.header("Satıcı Kaydı")
+        st.markdown("""
+        **Firma Adı**: Firmanızın adını giriniz. 
+        Bu alan, sistemde daha sonra kullanılacak ve silinmek istendiğinde de kullanılacaktır.
+        **Satmak İstediğiniz Atık Ürün**: Hangi atık türünü satmak istediğinizi seçin. 
+        Sektörünüze bağlı olarak atık türleri sunulacaktır.
+        """)
         firma_adi = st.text_input("Firma Adı")
         sektor_sec = st.selectbox("Sektör", list(turikler.keys()))
         atik_secenekleri = turikler[sektor_sec]
@@ -185,8 +232,15 @@ with st.sidebar:
         if kaydet_buton and firma_adi:
             yeni_id = firma_adi.strip()
             if yeni_id not in firma_bilgileri:
-                gps = (41.01 + 0.001 * len(st.session_state["yeni_firmalar"]), 39.72 + 0.001 * len(st.session_state["yeni_firmalar"]))
+                 # Mevcut koordinatları listele
+                mevcut_koordinatlar = list(firma_koordinatlari.values())
+                
+                # Yeni firma için benzersiz koordinat al
+                yeni_koordinatlar = get_new_coordinates(mevcut_koordinatlar, num_new_firms=1)
+                gps = yeni_koordinatlar[0]  # İlk yeni koordinatı al
                 firma_koordinatlari[yeni_id] = gps
+        
+                #Firma bilgi güncellemesi
                 firma_bilgileri[yeni_id] = {
                     "sektor": sektor_sec,
                     "atik": atik_turu,
@@ -195,8 +249,8 @@ with st.sidebar:
                 }
                 st.session_state["yeni_firmalar"].append(yeni_id) 
                 # EXCEL KAYDI:
-                df = pd.read_excel(excel_path)
-                yeni_satir = {
+                st.session_state["excel_data"] = pd.concat(
+                [st.session_state["excel_data"], pd.DataFrame([{
                     "Islem Tipi": "Satıcı Kaydı",
                     "Firma Adı": firma_adi,
                     "Sektör": sektor_sec,
@@ -204,9 +258,9 @@ with st.sidebar:
                     "Miktar": miktar,
                     "Fiyat": fiyat,
                     "Kullanıcı Adı": "-"
-                }
-                df = pd.concat([df, pd.DataFrame([yeni_satir])], ignore_index=True)
-                df.to_excel(excel_path, index=False)
+                }])],
+                ignore_index=True)
+                st.session_state["excel_data"].to_excel(excel_path, index=False)
                 st.success(f"{yeni_id} başarıyla eklendi!")
             else:
                 st.warning(f"{yeni_id} zaten sistemde mevcut.")
@@ -276,6 +330,9 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
         st.header("Şebeke Grafiği")
         grafik = nx.DiGraph()
         grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+        node_colors = []  # Düğüm renklerini burada tutacağız
+        node_sizes = []   # Düğüm boyutları
+        edge_widths = []  # Kenar kalınlıkları
         for row in sonuc:
             src = row["Gonderen"]
             dst = row["Alici"]
@@ -283,6 +340,29 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
             if src in firma_koordinatlari:
                 grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
                 grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
+                edge_widths.append(1 + miktar_flow / 50)  # Kenar kalınlığı miktara göre dinamik
+
+        # Renkleri ve boyutları ayarla
+        sector_colors = {
+            "Demir-Çelik": "red",
+            "Makine İmalat": "orange",
+            "Plastik Enjeksiyon": "purple"
+        }
+        for node in grafik.nodes:
+            if node == "Siz":
+                node_colors.append("green")  # Alıcı düğümü yeşil
+                node_sizes.append(3000)      # Alıcı düğümü daha büyük
+            else:
+                sektor = firma_bilgileri[node]["sektor"]
+                node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
+                node_sizes.append(2000)  # Gönderici düğümleri daha küçük
+        
+        # Düğüm ve kenarları çiz
+        pos = nx.get_node_attributes(grafik, 'pos')
+        edge_labels = nx.get_edge_attributes(grafik, 'label')
+        nx.draw(grafik, pos, with_labels=True, node_color=node_colors, node_size=2500, font_size=10, font_weight="bold")
+        nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
+
         pos = nx.get_node_attributes(grafik, 'pos')
         edge_labels = nx.get_edge_attributes(grafik, 'label')
         nx.draw(grafik, pos, with_labels=True, node_color="lightblue", node_size=2500, font_size=10, font_weight="bold")
@@ -301,7 +381,8 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu:
                     label="🗂️ İşlem Kayıtlarını Excel Olarak İndir",
                     data=file,
                     file_name="kayitlar.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    key="download-excel"
                 )
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.jpg",
