@@ -414,7 +414,7 @@ st.image(
     use_container_width=True
 )
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
-^#qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
+#qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
 #qr = qrcode.make(qr_link)
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
