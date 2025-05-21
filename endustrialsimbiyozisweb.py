@@ -368,6 +368,10 @@ for node in grafik.nodes:
 
 # Düğüm ve kenarları çiz
 pos = nx.get_node_attributes(grafik, 'pos')
+# Eksik pozisyonlar için varsayılan koordinat atanması
+for node in grafik.nodes:
+    if node not in pos:
+        pos[node] = (0, 0)  # Varsayılan koordinat (0, 0)
 edge_labels = nx.get_edge_attributes(grafik, 'label')
 
 nx.draw(
