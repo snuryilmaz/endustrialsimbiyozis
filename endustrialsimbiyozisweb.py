@@ -122,17 +122,15 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-# Başlık
-st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
-
-# Tanıtım Yazısı
 st.subheader("Endüstriyel Simbiyoz Nedir?")
 st.write("""
 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
 Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
-Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri 
-Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır.
+""")
+st.markdown("""
+**Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri  
+Aylin ÖZMEN, Halime GENÇ, Sema Nur YILMAZ ve Zeynep KİKİ tarafından 2024/2025 Bahar dönemi LİSANS BİTİRME projesi kapsamında hazırlanmıştır.**
 """)
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
