@@ -354,9 +354,9 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
 
     # Sektöre göre renk haritası
     sector_colors = {
-        "Demir-Çelik": "red",
-        "Makine İmalat": "orange",
-        "Plastik Enjeksiyon": "purple"
+        "Demir-Çelik": "#7EC8E3",
+        "Makine İmalat": "#FFD580",
+        "Plastik Enjeksiyon": "#D3D3D3"
     }
 
     # Düğüm renklerini ve boyutlarını ayarla
