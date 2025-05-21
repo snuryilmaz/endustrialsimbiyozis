@@ -408,7 +408,6 @@ if os.path.exists(excel_path):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download-excel"
         )
-)
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/osbkonumlandirma.png",
     caption="Çalışılan 8 OSB firmasının konumları",
