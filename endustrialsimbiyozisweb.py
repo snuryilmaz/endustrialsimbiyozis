@@ -350,7 +350,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
             grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
 
             # Kenar kalınlığını miktara göre ayarla
-            edge_widths.append(0.5 + miktar_flow / 100)
+            edge_widths.append(0.2 + miktar_flow / 100)
 
     # Sektöre göre renk haritası
     sector_colors = {
