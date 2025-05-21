@@ -15,7 +15,10 @@ if "excel_data" not in st.session_state:
         st.session_state["excel_data"] = pd.read_excel(excel_path)
     else:
         # Eğer dosya yoksa, boş bir DataFrame oluştur ve belleğe al
-        st.session_state["excel_data"] = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
+        st.session_state["excel_data"] = pd.DataFrame(
+            columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"]
+        )
+
 # -------------------------------------------------------------------------
 def get_new_coordinates(existing_coords, num_new_firms):
     """
@@ -37,6 +40,7 @@ def get_new_coordinates(existing_coords, num_new_firms):
         new_lon = center_lon + radius * math.cos(angle)
         new_coords.append((new_lat, new_lon))
     return new_coords
+
 # ------------------ OPTİMİZASYON FONKSİYONU ------------------
 def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
     uygunlar = []
@@ -118,18 +122,19 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
- # Başlık
+# Başlık
 st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
 
 # Tanıtım Yazısı
 st.subheader("Endüstriyel Simbiyoz Nedir?")
 st.write("""
-Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır. 
-Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır. 
-Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar. 
+Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
+Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
+Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
 Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri 
-Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır. 
+Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır.
 """)
+
 # -------------------- SABİT VERİLER ----------------------
 varsayilan_firmalar = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
@@ -210,14 +215,14 @@ with st.sidebar:
         if kaydet_buton and firma_adi:
             yeni_id = firma_adi.strip()
             if yeni_id not in firma_bilgileri:
-                 # Mevcut koordinatları listele
+                # Mevcut koordinatları listele
                 mevcut_koordinatlar = list(firma_koordinatlari.values())
                 
                 # Yeni firma için benzersiz koordinat al
                 yeni_koordinatlar = get_new_coordinates(mevcut_koordinatlar, num_new_firms=1)
                 gps = yeni_koordinatlar[0]  # İlk yeni koordinatı al
                 firma_koordinatlari[yeni_id] = gps
-        
+
                 #Firma bilgi güncellemesi
                 firma_bilgileri[yeni_id] = {
                     "sektor": sektor_sec,
@@ -225,7 +230,7 @@ with st.sidebar:
                     "fiyat": fiyat,
                     "miktar": miktar
                 }
-                st.session_state["yeni_firmalar"].append(yeni_id) 
+                st.session_state["yeni_firmalar"].append(yeni_id)
                 # EXCEL KAYDI:
                 st.session_state["excel_data"] = pd.concat(
                     [st.session_state["excel_data"], pd.DataFrame([{
@@ -243,17 +248,17 @@ with st.sidebar:
             else:
                 st.warning(f"{yeni_id} zaten sistemde mevcut.")
 
-      # Firma silme bölümü (sadece yeni eklenenler)
-    st.subheader("Firma Silme")
-    yeni_firmalar = [f for f in firma_bilgileri if f not in varsayilan_firma_isimleri]
-    if yeni_firmalar:
-        silinecek_firma = st.selectbox("Silinecek Firma", yeni_firmalar)
-        if st.button("Firmayı Sil"):
-            firma_bilgileri.pop(silinecek_firma, None)
-            firma_koordinatlari.pop(silinecek_firma, None)
-            st.success(f"{silinecek_firma} başarıyla silindi!")
-    else:
-        st.info("Silinebilecek ek firma yok.")
+        # Firma silme bölümü (sadece yeni eklenenler)
+        st.subheader("Firma Silme")
+        yeni_firmalar = [f for f in firma_bilgileri if f not in varsayilan_firma_isimleri]
+        if yeni_firmalar:
+            silinecek_firma = st.selectbox("Silinecek Firma", yeni_firmalar)
+            if st.button("Firmayı Sil"):
+                firma_bilgileri.pop(silinecek_firma, None)
+                firma_koordinatlari.pop(silinecek_firma, None)
+                st.success(f"{silinecek_firma} başarıyla silindi!")
+        else:
+            st.info("Silinebilecek ek firma yok.")
 
 # -------------------- FİRMA TABLOSU ----------------------
 firma_bilgileri_tablo = {
@@ -269,69 +274,80 @@ st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, mi
 st.dataframe(df)
 
 # -------------------- MODEL & ŞEBEKE ----------------------
-if secim == "Ürün almak istiyorum" and uygulama_butonu:
-    sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
-    if sonuc is None or toplam_alinan == 0:
-        st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
-    else:
-        eksik = miktar - toplam_alinan
-        if eksik > 0:
-            st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
+sonuc, toplam_maliyet, toplam_alinan = None, 0, 0
+alici_koordinati = None
+
+if secim == "Ürün almak istiyorum":
+    # Alıcı koordinatı ve uygulama butonu yukarıda tanımlı
+    if 'uygulama_butonu' in locals() and uygulama_butonu:
+        sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
+        if sonuc is None or toplam_alinan == 0:
+            st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
         else:
-            st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
-        # EXCEL'E KAYIT EKLE 
-        excel_path = "kayitlar.xlsx"
-        if not os.path.exists(excel_path):
-            df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
-            df_init.to_excel(excel_path, index=False)
-        df = pd.read_excel(excel_path)
-        for row in sonuc:
-            yeni_satir = {
-                "Islem Tipi": "Satın Alma",
-                "Firma Adı": row["Gonderen"],
-                "Sektör": firma_bilgileri[row["Gonderen"]]["sektor"],
-                "Atık Türü": firma_bilgileri[row["Gonderen"]]["atik"],
-                "Miktar": row["Miktar"],
-                "Fiyat": row["Fiyat (TL/kg)"],
-                "Kullanıcı Adı": ad_soyad
-            }
-            df = pd.concat([df, pd.DataFrame([yeni_satir])], ignore_index=True)
-        df.to_excel(excel_path, index=False)
+            eksik = miktar - toplam_alinan
+            if eksik > 0:
+                st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
+            else:
+                st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
+            # EXCEL'E KAYIT EKLE
+            excel_path = "kayitlar.xlsx"
+            if not os.path.exists(excel_path):
+                df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
+                df_init.to_excel(excel_path, index=False)
+            df_excel = pd.read_excel(excel_path)
+            for row in sonuc:
+                yeni_satir = {
+                    "Islem Tipi": "Satın Alma",
+                    "Firma Adı": row["Gonderen"],
+                    "Sektör": firma_bilgileri[row["Gonderen"]]["sektor"],
+                    "Atık Türü": firma_bilgileri[row["Gonderen"]]["atik"],
+                    "Miktar": row["Miktar"],
+                    "Fiyat": row["Fiyat (TL/kg)"],
+                    "Kullanıcı Adı": ad_soyad
+                }
+                df_excel = pd.concat([df_excel, pd.DataFrame([yeni_satir])], ignore_index=True)
+            df_excel.to_excel(excel_path, index=False)
 
-        st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
+            st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
 
-        # Sonuç Tablosu
-        st.write("**Satın Alım Dağılımı:**")
-        st.dataframe(pd.DataFrame(sonuc))
+            # Sonuç Tablosu
+            st.write("**Satın Alım Dağılımı:**")
+            st.dataframe(pd.DataFrame(sonuc))
 
-        # Şebeke Grafiği
+# -------------------- ŞEBEKE GRAFİĞİ ----------------------
 st.header("Şebeke Grafiği")
 
 # Şebeke grafiği için yönlü bir grafik oluştur
 grafik = nx.DiGraph()
 
-# Alıcı düğümünü (Siz) ekle
-grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+# Alıcı koordinatını belirle
+if secim == "Ürün almak istiyorum":
+    if 'alici_koordinati' in locals() and alici_koordinati is not None:
+        grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
+else:
+    # Varsayılan konum
+    grafik.add_node("Siz", pos=(39.72, 41.01))
 
 # Düğüm renklerini, boyutlarını ve kenar kalınlıklarını tutacak listeler
-node_colors = []  
-node_sizes = []   
-edge_widths = []  
+node_colors = []
+node_sizes = []
+edge_widths = []
 
 # Gönderici düğümleri ve kenarları ekle
-for row in sonuc:
-    src = row["Gonderen"]
-    dst = row["Alici"]
-    miktar_flow = row["Miktar"]
+if secim == "Ürün almak istiyorum" and sonuc:
+    for row in sonuc:
+        src = row["Gonderen"]
+        dst = row["Alici"]
+        miktar_flow = row["Miktar"]
 
-    if src in firma_koordinatlari:
-        # Gönderici düğümünü ekle
-        grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
-        # Gönderici ile alıcı arasına kenar ekle
-        grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
+        if src in firma_koordinatlari:
+            # Gönderici düğümünü ekle
+            grafik.add_node(src, pos=(firma_koordinatlari[src][1], firma_koordinatlari[src][0]))
+            # Gönderici ile alıcı arasına kenar ekle
+            grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
 
-        # Kenar kalınlığını miktara göre ayarla
-        edge_widths.append(1 + miktar_flow / 50)
+            # Kenar kalınlığını miktara göre ayarla
+            edge_widths.append(1 + miktar_flow / 50)
 
 # Sektöre göre renk haritası
 sector_colors = {
@@ -346,7 +362,7 @@ for node in grafik.nodes:
         node_colors.append("green")  # Alıcı düğümü yeşil
         node_sizes.append(3000)      # Alıcı düğümü daha büyük
     else:
-        sektor = firma_bilgileri[node]["sektor"]
+        sektor = firma_bilgileri[node]["sektor"] if node in firma_bilgileri else "Bilinmiyor"
         node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
         node_sizes.append(2000)  # Gönderici düğümleri daha küçük
 
@@ -354,7 +370,6 @@ for node in grafik.nodes:
 pos = nx.get_node_attributes(grafik, 'pos')
 edge_labels = nx.get_edge_attributes(grafik, 'label')
 
-# Grafik çizimi
 nx.draw(
     grafik,
     pos,
@@ -364,34 +379,32 @@ nx.draw(
     font_size=10,
     font_weight="bold",
     edge_color="gray",
-    width=edge_widths  # Kenar kalınlıkları
+    width=edge_widths
 )
-# Kenar etiketlerini çiz
 nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
-
-# Grafik ayarları
 plt.title("Optimal Taşıma Şebekesi")
-plt.axis('off')  # Eksenleri kapat
+plt.axis('off')
 st.pyplot(plt)
-plt.clf()  # Grafiği sıfırla
+plt.clf()
+
 # GRAFİK SONRASI EXCEL İNDİRME BUTONU
 st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
-# Excel indirme butonundan önce açıklama
-excel_path = "kayitlar.xlsx"
 if os.path.exists(excel_path):
     with open(excel_path, "rb") as file:
-    st.download_button(
-    label="🗂️ İşlem Kayıtlarını Excel Olarak İndir",
-    data=file,
-    file_name="kayitlar.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    key="download-excel"
-    )
+        st.download_button(
+            label="🗂️ İşlem Kayıtlarını Excel Olarak İndir",
+            data=file,
+            file_name="kayitlar.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="download-excel"
+        )
+
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.jpg",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
     use_container_width=True
 )
+
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
 qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
 qr = qrcode.make(qr_link)
