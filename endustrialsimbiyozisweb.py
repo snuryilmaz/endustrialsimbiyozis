@@ -406,6 +406,11 @@ if os.path.exists(excel_path):
         )
 
 st.image(
+    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/osbkonumlandirma.png",
+    caption="Çalışılan 8 OSB firmasının konumları",
+    use_container_width=True
+)
+st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.jpg",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
     use_container_width=True
