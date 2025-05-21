@@ -91,7 +91,7 @@ st.markdown(
     }
     .stApp {
         background-color: rgba(255, 255, 255, 0.6);
-        padding-top: 80px;
+        padding-top: 40px;
     }
     .logo-container {
         position: fixed;
