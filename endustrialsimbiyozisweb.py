@@ -134,13 +134,11 @@ Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceğ
 Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri 
 Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır.
 """)
-)
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
     use_container_width=True
 )
-
 # -------------------- SABİT VERİLER ----------------------
 varsayilan_firmalar = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
@@ -410,18 +408,12 @@ if os.path.exists(excel_path):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download-excel"
         )
-
+)
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/osbkonumlandirma.png",
     caption="Çalışılan 8 OSB firmasının konumları",
     use_container_width=True
 )
-st.image(
-    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
-    caption="Örnek Endüstriyel Simbiyoz Ağı",
-    use_container_width=True
-)
-
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
 qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
 qr = qrcode.make(qr_link)
