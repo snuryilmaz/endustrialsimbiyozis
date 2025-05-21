@@ -350,7 +350,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
             grafik.add_edge(src, "Siz", weight=miktar_flow, label=f"{miktar_flow:.0f} kg")
 
             # Kenar kalınlığını miktara göre ayarla
-            edge_widths.append(1 + miktar_flow / 50)
+            edge_widths.append(0,5 + miktar_flow / 50)
 
     # Sektöre göre renk haritası
     sector_colors = {
@@ -362,7 +362,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
     # Düğüm renklerini ve boyutlarını ayarla
     for node in grafik.nodes:
         if node == "Siz":
-            node_colors.append("green")  # Alıcı düğümü yeşil
+            node_colors.append("red")  # Alıcı düğümü yeşil
             node_sizes.append(3000)      # Alıcı düğümü daha büyük
         else:
             sektor = firma_bilgileri[node]["sektor"] if node in firma_bilgileri else "Bilinmiyor"
