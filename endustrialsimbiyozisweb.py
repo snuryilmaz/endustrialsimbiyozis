@@ -374,19 +374,19 @@ plt.title("Optimal Taşıma Şebekesi")
 plt.axis('off')  # Eksenleri kapat
 st.pyplot(plt)
 plt.clf()  # Grafiği sıfırla
-        # GRAFİK SONRASI EXCEL İNDİRME BUTONU
-        st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
-        # Excel indirme butonundan önce açıklama
-        excel_path = "kayitlar.xlsx"
-        if os.path.exists(excel_path):
-            with open(excel_path, "rb") as file:
-                st.download_button(
-                    label="🗂️ İşlem Kayıtlarını Excel Olarak İndir",
-                    data=file,
-                    file_name="kayitlar.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    key="download-excel"
-                )
+# GRAFİK SONRASI EXCEL İNDİRME BUTONU
+st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
+# Excel indirme butonundan önce açıklama
+excel_path = "kayitlar.xlsx"
+if os.path.exists(excel_path):
+    with open(excel_path, "rb") as file:
+    st.download_button(
+    label="🗂️ İşlem Kayıtlarını Excel Olarak İndir",
+    data=file,
+    file_name="kayitlar.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    key="download-excel"
+    )
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.jpg",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
