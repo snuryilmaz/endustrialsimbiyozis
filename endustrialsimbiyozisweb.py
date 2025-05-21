@@ -123,7 +123,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 # Başlık
-st.title("Endüstriyel Simbiyoz ARSİN OSB Optimizasyon Aracı")
+st.title("Endüstriyel Simbiyoz İçin Dijital Eşleşme Modülü")
 st.subheader("Endüstriyel Simbiyoz Nedir?")
 st.write("""
 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
