@@ -315,26 +315,27 @@ if secim == "Ürün almak istiyorum":
             st.dataframe(pd.DataFrame(sonuc))
 
 # -------------------- ŞEBEKE GRAFİĞİ ----------------------
-st.header("Şebeke Grafiği")
 
-# Şebeke grafiği için yönlü bir grafik oluştur
-grafik = nx.DiGraph()
+# Şebeke grafiği yalnızca alım işlemi tamamlandıysa gösterilecek
+if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_alinan > 0:
+    st.header("Şebeke Grafiği")
 
-# Alıcı koordinatını belirle
-if secim == "Ürün almak istiyorum":
-    if 'alici_koordinati' in locals() and alici_koordinati is not None:
+    # Şebeke grafiği için yönlü bir grafik oluştur
+    grafik = nx.DiGraph()
+
+    # Alıcı koordinatını belirle
+    if alici_koordinati is not None:
         grafik.add_node("Siz", pos=(alici_koordinati[1], alici_koordinati[0]))
-else:
-    # Varsayılan konum
-    grafik.add_node("Siz", pos=(39.72, 41.01))
+    else:
+        # Varsayılan konum
+        grafik.add_node("Siz", pos=(39.72, 41.01))
 
-# Düğüm renklerini, boyutlarını ve kenar kalınlıklarını tutacak listeler
-node_colors = []
-node_sizes = []
-edge_widths = []
+    # Düğüm renklerini, boyutlarını ve kenar kalınlıklarını tutacak listeler
+    node_colors = []
+    node_sizes = []
+    edge_widths = []
 
-# Gönderici düğümleri ve kenarları ekle
-if secim == "Ürün almak istiyorum" and sonuc:
+    # Gönderici düğümleri ve kenarları ekle
     for row in sonuc:
         src = row["Gonderen"]
         dst = row["Alici"]
@@ -349,48 +350,48 @@ if secim == "Ürün almak istiyorum" and sonuc:
             # Kenar kalınlığını miktara göre ayarla
             edge_widths.append(1 + miktar_flow / 50)
 
-# Sektöre göre renk haritası
-sector_colors = {
-    "Demir-Çelik": "red",
-    "Makine İmalat": "orange",
-    "Plastik Enjeksiyon": "purple"
-}
+    # Sektöre göre renk haritası
+    sector_colors = {
+        "Demir-Çelik": "red",
+        "Makine İmalat": "orange",
+        "Plastik Enjeksiyon": "purple"
+    }
 
-# Düğüm renklerini ve boyutlarını ayarla
-for node in grafik.nodes:
-    if node == "Siz":
-        node_colors.append("green")  # Alıcı düğümü yeşil
-        node_sizes.append(3000)      # Alıcı düğümü daha büyük
-    else:
-        sektor = firma_bilgileri[node]["sektor"] if node in firma_bilgileri else "Bilinmiyor"
-        node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
-        node_sizes.append(2000)  # Gönderici düğümleri daha küçük
+    # Düğüm renklerini ve boyutlarını ayarla
+    for node in grafik.nodes:
+        if node == "Siz":
+            node_colors.append("green")  # Alıcı düğümü yeşil
+            node_sizes.append(3000)      # Alıcı düğümü daha büyük
+        else:
+            sektor = firma_bilgileri[node]["sektor"] if node in firma_bilgileri else "Bilinmiyor"
+            node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
+            node_sizes.append(2000)  # Gönderici düğümleri daha küçük
 
-# Düğüm ve kenarları çiz
-pos = nx.get_node_attributes(grafik, 'pos')
-# Eksik pozisyonlar için varsayılan koordinat atanması
-missing_nodes = [node for node in grafik.nodes if node not in pos]
-for node in missing_nodes:
-    st.warning(f"{node} düğümü için koordinat bulunamadı. Varsayılan (0, 0) koordinatı atanıyor.")
-    pos[node] = (0, 0)  # Varsayılan koordinat (0, 0)
-edge_labels = nx.get_edge_attributes(grafik, 'label')
+    # Düğüm ve kenarları çiz
+    pos = nx.get_node_attributes(grafik, 'pos')
+    # Eksik pozisyonlar için varsayılan koordinat atanması
+    missing_nodes = [node for node in grafik.nodes if node not in pos]
+    for node in missing_nodes:
+        st.warning(f"{node} düğümü için koordinat bulunamadı. Varsayılan (0, 0) koordinatı atanıyor.")
+        pos[node] = (0, 0)  # Varsayılan koordinat (0, 0)
+    edge_labels = nx.get_edge_attributes(grafik, 'label')
 
-nx.draw(
-    grafik,
-    pos,
-    with_labels=True,
-    node_color=node_colors,
-    node_size=node_sizes,
-    font_size=10,
-    font_weight="bold",
-    edge_color="gray",
-    width=edge_widths
-)
-nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
-plt.title("Optimal Taşıma Şebekesi")
-plt.axis('off')
-st.pyplot(plt)
-plt.clf()
+    nx.draw(
+        grafik,
+        pos,
+        with_labels=True,
+        node_color=node_colors,
+        node_size=node_sizes,
+        font_size=10,
+        font_weight="bold",
+        edge_color="gray",
+        width=edge_widths
+    )
+    nx.draw_networkx_edge_labels(grafik, pos, edge_labels=edge_labels, font_size=10)
+    plt.title("Optimal Taşıma Şebekesi")
+    plt.axis('off')
+    st.pyplot(plt)
+    plt.clf()
 
 # GRAFİK SONRASI EXCEL İNDİRME BUTONU
 st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
