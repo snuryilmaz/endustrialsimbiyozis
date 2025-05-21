@@ -201,7 +201,7 @@ with st.sidebar:
         alici_koordinati = (mean_lat, (max_lon + min_lon) / 2)  # Yeni dinamik hesaplama
         
         # Koordinatı kullanıcıya sadece bilgi olarak göster
-        st.info(f"Alıcı noktası otomatik olarak {alici_koordinati[0]:.5f}, {alici_koordinati[1]:.5f} koordinatında bulundu.")
+        #st.info(f"Alıcı noktası otomatik olarak {alici_koordinati[0]:.5f}, {alici_koordinati[1]:.5f} koordinatında bulundu.")
         uygulama_butonu = st.button("Uygulamayı Çalıştır")
 
 
