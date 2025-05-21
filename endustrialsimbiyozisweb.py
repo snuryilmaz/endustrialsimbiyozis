@@ -95,8 +95,8 @@ st.markdown(
     }
     .logo-container {
         position: fixed;
-        top: 15px;
-        right: 15px;
+        top: 80px;
+        right: 25px;
         z-index: 9999;
         background-color: white;
         padding: 10px;
@@ -104,7 +104,7 @@ st.markdown(
         box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
     .logo-container img {
-        height: 100px;
+        height: 120px;
     }
     h1, h2, h3, h4, h5, h6 {
         color: #2e7d32 !important;
