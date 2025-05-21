@@ -95,16 +95,16 @@ st.markdown(
     }
     .logo-container {
         position: fixed;
-        top: 80px;
-        right: 25px;
+        top: 30px;
+        right: 24px;
         z-index: 9999;
         background-color: white;
-        padding: 10px;
-        border-radius: 12px;
+        padding: 8px;
+        border-radius: 16px;
         box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
     .logo-container img {
-        height: 120px;
+        height: 90px;
     }
     h1, h2, h3, h4, h5, h6 {
         color: #2e7d32 !important;
