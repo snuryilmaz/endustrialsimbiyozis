@@ -134,6 +134,12 @@ Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceğ
 Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri 
 Aylin Özmen, Halime Genç,Sema Nur Yılmaz ve Zeynep Kiki tarafından 2024/2025 Bahar dönemi lisans bitirme projesi kapsamında hazırlanmıştır.
 """)
+)
+st.image(
+    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
+    caption="Örnek Endüstriyel Simbiyoz Ağı",
+    use_container_width=True
+)
 
 # -------------------- SABİT VERİLER ----------------------
 varsayilan_firmalar = {
@@ -411,7 +417,7 @@ st.image(
     use_container_width=True
 )
 st.image(
-    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.jpg",
+    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
     use_container_width=True
 )
