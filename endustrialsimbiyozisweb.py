@@ -6,6 +6,7 @@ import qrcode
 import io
 import math
 import os  # <-- BU ÖNEMLİ EXCEL İÇİN!!!
+from datetime import date, timedelta  # eklendi: satıcı için 15 gün sonrası hesaplama
 
 # Excel dosyasını başta bir kere kontrol et ve oluştur
 excel_path = "kayitlar.xlsx"
@@ -18,6 +19,12 @@ if "excel_data" not in st.session_state:
         st.session_state["excel_data"] = pd.DataFrame(
             columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"]
         )
+
+# Türkçe ay isimleri (tarih formatlamak için)
+TURKISH_MONTHS = [
+    "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+]
 
 # -------------------------------------------------------------------------
 def get_new_coordinates(existing_coords, num_new_firms):
@@ -249,6 +256,13 @@ with st.sidebar:
                     ignore_index=True)
                 st.session_state["excel_data"].to_excel(excel_path, index=False)
                 st.success(f"{yeni_id} başarıyla eklendi!")
+
+                # --- EKLENECEK KISIM: Satıcının bildirdiği "15 gün sonra temin" tarihini hesapla ve göster ---
+                teslim_tarihi = date.today() + timedelta(days=15)
+                ay_adi = TURKISH_MONTHS[teslim_tarihi.month - 1]
+                st.info(f"Bu ürünü bugün itibarıyla 15 gün sonra temin edebilirsiniz: {teslim_tarihi.day} {ay_adi} {teslim_tarihi.year}.")
+                # ------------------------------------------------------------------------------------
+
             else:
                 st.warning(f"{yeni_id} zaten sistemde mevcut.")
 
@@ -419,3 +433,4 @@ st.image(
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
