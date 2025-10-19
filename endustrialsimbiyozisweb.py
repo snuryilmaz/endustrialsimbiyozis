@@ -348,30 +348,44 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
     # ---------- Yeni kısım: satıcı bilgilendirmelerini grafiğin üzerinde göster ----------
     st.subheader("Satıcı Bilgilendirmeleri")
     # Burada alıcının toplam talebi (miktar) ile karşılaştırarak mesajlar oluşturuyoruz.
+    # Düzeltme: her firma için 'eslesme' (row["Miktar"]) bazında, sırayla kalan ihtiyacı güncelleyip ona göre mesaj yazıyoruz.
+    remaining = miktar
     for row in sonuc:
         src = row["Gonderen"]
+        allocated = row["Miktar"]  # Bu sipariş için o firmadan alınacak miktar
         firma = firma_bilgileri.get(src, {})
         firma_stok = firma.get("miktar", 0)
         lead = firma.get("lead_time_days", None)
 
-        # Eğer firma toplam talebi karşılayabiliyorsa (tam stok varsa)
-        if firma_stok >= miktar:
-            st.success(f"{src} — Stoğumuz talebinizi karşılıyor. En kısa zamanda teslimat gerçekleşecektir.")
-        # Kısmi stok varsa
-        elif 0 < firma_stok < miktar:
-            kalan = max(0, miktar - firma_stok)
+        remaining_after = max(0, remaining - allocated)
+
+        # 1) Firma, gönderdiği miktarla birlikte stokunu tamamen veriyor ve alıcının ihtiyacı bitiyorsa
+        if allocated == firma_stok and remaining_after == 0:
+            st.success(f"{src} — Elimizde {allocated} kg hazır. En kısa zamanda teslimat gerçekleşecektir.")
+        # 2) Firma, stokunu tamamını gönderiyor fakat alıcının hâlâ kalan ihtiyacı var
+        elif allocated == firma_stok and remaining_after > 0:
             if lead is not None:
                 tahmini = date.today() + timedelta(days=lead)
-                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {kalan} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
+                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {remaining_after} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
             else:
-                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {kalan} kg için temin süresi bildirilmemiş.")
-        # Stok yoksa
+                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {remaining_after} kg için temin süresi bildirilmemiş.")
+        # 3) Firma, stokundan sadece bir kısmını bu sipariş için gönderiyor (allocated < firma_stok)
+        elif allocated < firma_stok:
+            if lead is not None:
+                tahmini = date.today() + timedelta(days=lead)
+                st.info(f"{src} — Elimizde {firma_stok} kg hazır; bu sipariş için {allocated} kg göndereceğiz; kalan {remaining_after} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
+            else:
+                st.info(f"{src} — Elimizde {firma_stok} kg hazır; bu sipariş için {allocated} kg göndereceğiz; kalan {remaining_after} kg için temin süresi bildirilmemiş.")
+        # 4) Genel fallback
         else:
             if lead is not None:
                 tahmini = date.today() + timedelta(days=lead)
                 st.info(f"{src} — Bugünden itibaren {lead} gün içinde temin edilecektir (tahmini: {format_tarih(tahmini)}).")
             else:
                 st.info(f"{src} — Temin süresi bildirilmemiş.")
+
+        # kalan ihtiyacı güncelle
+        remaining = remaining_after
 
     # -------------------------------------------------------------------
     st.header("Şebeke Grafiği")
