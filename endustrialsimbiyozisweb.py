@@ -57,7 +57,8 @@ def get_new_coordinates(existing_coords, num_new_firms):
 def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
     uygunlar = []
     for f_adi, f_bilgi in firmalar.items():
-        if f_bilgi["atik"] == atik_turu and f_bilgi["miktar"] > 0:
+        # güvenli kullanım: atik bilgisi olmayabilir, get ile al
+        if f_bilgi.get("atik") == atik_turu and f_bilgi.get("miktar", 0) > 0:
             uygunlar.append({
                 "Firma": f_adi,
                 "Fiyat": f_bilgi["fiyat"],
@@ -162,12 +163,21 @@ varsayilan_firmalar = {
     "Firma 6": {"sektor": "Makine İmalat", "atik": "Elektronik Atıklar", "fiyat": 20, "miktar": 100, "lead_time_days": random.randint(0, 15)},
     "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200, "lead_time_days": random.randint(0, 15)},
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400, "lead_time_days": random.randint(0, 15)},
+    # Yeni eklenen firmalar:
+    "Firma 9": {"sektor": "Gıda", "atik": "Yemek Artıkları", "fiyat": 2, "miktar": 250, "lead_time_days": random.randint(0, 15)},
+    "Firma 10": {"sektor": "Kağıt & Ambalaj", "atik": "Karton", "fiyat": 1.2, "miktar": 650, "lead_time_days": random.randint(0, 15)},
 }
+
+# Güncelleme: yeni sektörler eklendi. "Yem ve Mama Üretim" sektörü atık üretmiyor (boş liste).
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
-    "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"]
+    "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"],
+    "Gıda": ["Meyve-Sebze Posası", "Yemek Artıkları"],
+    "Yem ve Mama Üretim": [],  # Bu sektör atık üretmiyor / alıcı seçeneği değil
+    "Kağıt & Ambalaj": ["Karton", "Endüstriyel Kağıt Atığı"]
 }
+
 firma_koordinatlari = {
     "Firma 1": (41.0105, 39.7266),
     "Firma 2": (40.9900, 39.7200),
@@ -177,6 +187,9 @@ firma_koordinatlari = {
     "Firma 6": (41.0250, 39.7350),
     "Firma 7": (41.0300, 39.7400),
     "Firma 8": (41.0350, 39.7450),
+    # Yeni firmalar için koordinatlar
+    "Firma 9": (41.0400, 39.7500),
+    "Firma 10": (41.0450, 39.7550),
 }
 
 # -------------------- STATE YÖNETİMİ ----------------------
@@ -207,7 +220,14 @@ with st.sidebar:
         ad_soyad = st.text_input("Ad Soyad")
         sirket_adi = st.text_input("Şirket Adı")
         sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
-        atik_turu = st.selectbox("Atık Türü", turikler[sektor])
+        # Eğer seçilen sektörün atık listesi boşsa (ör. "Yem ve Mama Üretim"), kullanıcıya bilgi veriliyor
+        atik_options = turikler.get(sektor, [])
+        if atik_options:
+            atik_turu = st.selectbox("Atık Türü", atik_options)
+        else:
+            st.info("Seçtiğiniz sektör atık üretmiyor veya alım için uygun atık türü yok.")
+            atik_turu = None
+
         miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=10000, value=100)
         
         # Dinamik olarak alıcı koordinatını hesapla
@@ -225,8 +245,14 @@ with st.sidebar:
         st.header("Satıcı Kaydı")
         firma_adi = st.text_input("Firma Adı")
         sektor_sec = st.selectbox("Sektör", list(turikler.keys()))
-        atik_secenekleri = turikler[sektor_sec]
-        atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri)
+        atik_secenekleri = turikler.get(sektor_sec, [])
+        # Eğer sektörün atık listesi boşsa (ör. Yem ve Mama Üretim), kullanıcıya bilgi ver ve atik_turu=None
+        if atik_secenekleri:
+            atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri)
+        else:
+            st.info("Bu sektör atık üretmiyor. Satıcı kaydı atık bildirimi gerektirmez.")
+            atik_turu = None
+
         miktar = st.number_input("Satmak istediğiniz ürün miktarı (kg)", min_value=1)
         fiyat = st.number_input("Ürünü ne kadara satmak istiyorsunuz? (TL/kg)", min_value=0.0)
         # Temin süresi artık zorunlu
@@ -234,7 +260,8 @@ with st.sidebar:
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
         if kaydet_buton and firma_adi:
             yeni_id = firma_adi.strip()
-            # temin_suresi her zaman bir değer içerir çünkü min_value ve default verildi
+            # Eğer atik_turu None ise (ör. Yem ve Mama Üretim) burada kayıt yapmak isterlerse atik alanı olmadan kayıt yapılır.
+            # Kullanıcı isteğine göre atik_turu None olsa da kayıt kabul edilsin (sektör sadece üretici/imalatçı olarak kayıtlı olsun).
             if yeni_id not in firma_bilgileri:
                 # Mevcut koordinatları listele
                 mevcut_koordinatlar = list(firma_koordinatlari.values())
@@ -247,6 +274,7 @@ with st.sidebar:
                 #Firma bilgi güncellemesi (lead_time_days zorunlu alan olarak eklenir)
                 firma_bilgileri[yeni_id] = {
                     "sektor": sektor_sec,
+                    # atik_turu None olabilir; kaydederken buna izin veriyoruz
                     "atik": atik_turu,
                     "fiyat": fiyat,
                     "miktar": miktar,
@@ -259,7 +287,7 @@ with st.sidebar:
                         "Islem Tipi": "Satıcı Kaydı",
                         "Firma Adı": firma_adi,
                         "Sektör": sektor_sec,
-                        "Atık Türü": atik_turu,
+                        "Atık Türü": atik_turu if atik_turu is not None else "-",
                         "Miktar": miktar,
                         "Fiyat": fiyat,
                         "Kullanıcı Adı": "-"
@@ -290,7 +318,7 @@ with st.sidebar:
 firma_bilgileri_tablo = {
     "Firma Adı": list(firma_bilgileri.keys()),
     "Sektör": [v["sektor"] for v in firma_bilgileri.values()],
-    "Ürün": [v["atik"] for v in firma_bilgileri.values()],
+    "Ürün": [v.get("atik", "") for v in firma_bilgileri.values()],
     "Miktar (kg)": [v["miktar"] for v in firma_bilgileri.values()],
     "Fiyat (TL/kg)": [v["fiyat"] for v in firma_bilgileri.values()],
     "Temin Süresi (gün)": [v.get("lead_time_days", "") for v in firma_bilgileri.values()]
@@ -307,39 +335,43 @@ alici_koordinati = None
 if secim == "Ürün almak istiyorum":
     # Alıcı koordinatı ve uygulama butonu yukarıda tanımlı
     if 'uygulama_butonu' in locals() and uygulama_butonu:
-        sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
-        if sonuc is None or toplam_alinan == 0:
-            st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
+        # atik_turu None ise işlem yapılamaz, göster
+        if atik_turu is None:
+            st.error("Seçtiğiniz sektör için geçerli atık türü yok; işlem yapılamıyor.")
         else:
-            eksik = miktar - toplam_alinan
-            if eksik > 0:
-                st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
+            sonuc, toplam_maliyet, toplam_alinan = optimize_waste_allocation(firma_bilgileri, atik_turu, miktar)
+            if sonuc is None or toplam_alinan == 0:
+                st.error("Talebiniz karşılanamadı, uygun ürün bulunamadı!")
             else:
-                st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
-            # EXCEL'E KAYIT EKLE
-            excel_path = "kayitlar.xlsx"
-            if not os.path.exists(excel_path):
-                df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
-                df_init.to_excel(excel_path, index=False)
-            df_excel = pd.read_excel(excel_path)
-            for row in sonuc:
-                yeni_satir = {
-                    "Islem Tipi": "Satın Alma",
-                    "Firma Adı": row["Gonderen"],
-                    "Sektör": firma_bilgileri[row["Gonderen"]]["sektor"],
-                    "Atık Türü": firma_bilgileri[row["Gonderen"]]["atik"],
-                    "Miktar": row["Miktar"],
-                    "Fiyat": row["Fiyat (TL/kg)"],
-                    "Kullanıcı Adı": ad_soyad
-                }
-                df_excel = pd.concat([df_excel, pd.DataFrame([yeni_satir])], ignore_index=True)
-            df_excel.to_excel(excel_path, index=False)
+                eksik = miktar - toplam_alinan
+                if eksik > 0:
+                    st.warning(f"Talebinizin {eksik} kg'lık kısmı karşılanamadı! Sadece {toplam_alinan} kg karşılandı.")
+                else:
+                    st.success(f"Tüm talebiniz karşılandı! {toplam_alinan} kg ürün teslim edilecek.")
+                # EXCEL'E KAYIT EKLE
+                excel_path = "kayitlar.xlsx"
+                if not os.path.exists(excel_path):
+                    df_init = pd.DataFrame(columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"])
+                    df_init.to_excel(excel_path, index=False)
+                df_excel = pd.read_excel(excel_path)
+                for row in sonuc:
+                    yeni_satir = {
+                        "Islem Tipi": "Satın Alma",
+                        "Firma Adı": row["Gonderen"],
+                        "Sektör": firma_bilgileri[row["Gonderen"]]["sektor"],
+                        "Atık Türü": firma_bilgileri[row["Gonderen"]]["atik"],
+                        "Miktar": row["Miktar"],
+                        "Fiyat": row["Fiyat (TL/kg)"],
+                        "Kullanıcı Adı": ad_soyad
+                    }
+                    df_excel = pd.concat([df_excel, pd.DataFrame([yeni_satir])], ignore_index=True)
+                df_excel.to_excel(excel_path, index=False)
 
-            st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
+                st.success(f"Toplam Taşıma Maliyeti: {toplam_maliyet:.2f} TL")
 
-            # Sonuç Tablosu
-            st.write("**Satın Alım Dağılımı:**")
-            st.dataframe(pd.DataFrame(sonuc))
+                # Sonuç Tablosu
+                st.write("**Satın Alım Dağılımı:**")
+                st.dataframe(pd.DataFrame(sonuc))
 
 # -------------------- ŞEBEKE GRAFİĞİ ----------------------
 
@@ -347,44 +379,39 @@ if secim == "Ürün almak istiyorum":
 if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_alinan > 0:
     # ---------- Yeni kısım: satıcı bilgilendirmelerini grafiğin üzerinde göster ----------
     st.subheader("Satıcı Bilgilendirmeleri")
-    # Burada alıcının toplam talebi (miktar) ile karşılaştırarak mesajlar oluşturuyoruz.
-    # Düzeltme: her firma için 'eslesme' (row["Miktar"]) bazında, sırayla kalan ihtiyacı güncelleyip ona göre mesaj yazıyoruz.
     remaining = miktar
     for row in sonuc:
         src = row["Gonderen"]
         allocated = row["Miktar"]  # Bu sipariş için o firmadan alınacak miktar
+        if allocated <= 0:
+            continue
         firma = firma_bilgileri.get(src, {})
         firma_stok = firma.get("miktar", 0)
         lead = firma.get("lead_time_days", None)
 
         remaining_after = max(0, remaining - allocated)
 
-        # 1) Firma, gönderdiği miktarla birlikte stokunu tamamen veriyor ve alıcının ihtiyacı bitiyorsa
-        if allocated == firma_stok and remaining_after == 0:
-            st.success(f"{src} — Elimizde {allocated} kg hazır. En kısa zamanda teslimat gerçekleşecektir.")
-        # 2) Firma, stokunu tamamını gönderiyor fakat alıcının hâlâ kalan ihtiyacı var
-        elif allocated == firma_stok and remaining_after > 0:
-            if lead is not None:
-                tahmini = date.today() + timedelta(days=lead)
-                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {remaining_after} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
-            else:
-                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {remaining_after} kg için temin süresi bildirilmemiş.")
-        # 3) Firma, stokundan sadece bir kısmını bu sipariş için gönderiyor (allocated < firma_stok)
-        elif allocated < firma_stok:
-            if lead is not None:
-                tahmini = date.today() + timedelta(days=lead)
-                st.info(f"{src} — Elimizde {firma_stok} kg hazır; bu sipariş için {allocated} kg göndereceğiz; kalan {remaining_after} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
-            else:
-                st.info(f"{src} — Elimizde {firma_stok} kg hazır; bu sipariş için {allocated} kg göndereceğiz; kalan {remaining_after} kg için temin süresi bildirilmemiş.")
-        # 4) Genel fallback
-        else:
-            if lead is not None:
-                tahmini = date.today() + timedelta(days=lead)
-                st.info(f"{src} — Bugünden itibaren {lead} gün içinde temin edilecektir (tahmini: {format_tarih(tahmini)}).")
-            else:
-                st.info(f"{src} — Temin süresi bildirilmemiş.")
+        # Temel ifade: firma stokunu, ve bu sipariş için göndereceği miktarı belirt
+        temel = f"{src} — Elimizde {firma_stok} kg hazır; bu sipariş için {allocated} kg göndereceğiz."
 
-        # kalan ihtiyacı güncelle
+        # Durumlara göre ek açıklamalar:
+        if remaining_after == 0:
+            # Bu tedarikçiyle alıcının ihtiyacı (bu ve önceki tedarikçilerle) karşılanıyor -> teslimat hızlı/öncelikli
+            st.success(temel + " En kısa zamanda teslimat gerçekleşecektir.")
+        else:
+            # Alıcının hala ihtiyacı var after this supplier
+            if allocated == firma_stok:
+                # Firma stokunu tamamen veriyor; kalan talep başka firmalardan karşılanacak
+                st.warning(temel + f" Kalan talep: {remaining_after} kg diğer firmalardan temin edilecek.")
+            else:
+                # Firma stokunun bir kısmını bu sipariş için veriyor (allocated < firma_stok)
+                if lead is not None:
+                    tahmini = date.today() + timedelta(days=lead)
+                    st.info(temel + f" Kalan {remaining_after} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
+                else:
+                    st.info(temel + f" Kalan {remaining_after} kg için temin süresi bildirilmemiş.")
+
+        # kalan ihtiyacı sırayla güncelle
         remaining = remaining_after
 
     # -------------------------------------------------------------------
@@ -424,7 +451,10 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
     sector_colors = {
         "Demir-Çelik": "#7EC8E3",
         "Makine İmalat": "#FFD580",
-        "Plastik Enjeksiyon": "#D3D3D3"
+        "Plastik Enjeksiyon": "#D3D3D3",
+        "Gıda": "#C8E6C9",
+        "Yem ve Mama Üretim": "#FFE0B2",
+        "Kağıt & Ambalaj": "#FFF9C4"
     }
 
     # Düğüm renklerini ve boyutlarını ayarla
@@ -480,7 +510,7 @@ st.image(
     use_container_width=True
 )
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
-#qr_link = "https://endustrialsimbiyozis-snuryilmazktu.streamlit.app/"
+#qr_link = "https://endustrialsimbiyrazils/snuryilmazktu.streamlit.app/"
 #qr = qrcode.make(qr_link)
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
