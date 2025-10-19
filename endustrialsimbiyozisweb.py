@@ -6,7 +6,8 @@ import qrcode
 import io
 import math
 import os  # <-- BU ÖNEMLİ EXCEL İÇİN!!!
-from datetime import date, timedelta  # eklendi: satıcı için 15 gün sonrası hesaplama
+import random
+from datetime import date, timedelta
 
 # Excel dosyasını başta bir kere kontrol et ve oluştur
 excel_path = "kayitlar.xlsx"
@@ -25,6 +26,10 @@ TURKISH_MONTHS = [
     "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
 ]
+
+def format_tarih(d: date):
+    ay_adi = TURKISH_MONTHS[d.month - 1]
+    return f"{d.day} {ay_adi} {d.year}"
 
 # -------------------------------------------------------------------------
 def get_new_coordinates(existing_coords, num_new_firms):
@@ -147,15 +152,16 @@ st.image(
     use_container_width=True
 )
 # -------------------- SABİT VERİLER ----------------------
+# Mevcut firmalara rastgele temin süresi (0-15 gün) atıyoruz
 varsayilan_firmalar = {
-    "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100},
-    "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200},
-    "Firma 3": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 15, "miktar": 150},
-    "Firma 4": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 10, "miktar": 300},
-    "Firma 5": {"sektor": "Plastik Enjeksiyon", "atik": "HDPE", "fiyat": 12, "miktar": 250},
-    "Firma 6": {"sektor": "Makine İmalat", "atik": "Elektronik Atıklar", "fiyat": 20, "miktar": 100},
-    "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200},
-    "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400},
+    "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100, "lead_time_days": random.randint(0, 15)},
+    "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200, "lead_time_days": random.randint(0, 15)},
+    "Firma 3": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 15, "miktar": 150, "lead_time_days": random.randint(0, 15)},
+    "Firma 4": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 10, "miktar": 300, "lead_time_days": random.randint(0, 15)},
+    "Firma 5": {"sektor": "Plastik Enjeksiyon", "atik": "HDPE", "fiyat": 12, "miktar": 250, "lead_time_days": random.randint(0, 15)},
+    "Firma 6": {"sektor": "Makine İmalat", "atik": "Elektronik Atıklar", "fiyat": 20, "miktar": 100, "lead_time_days": random.randint(0, 15)},
+    "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200, "lead_time_days": random.randint(0, 15)},
+    "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400, "lead_time_days": random.randint(0, 15)},
 }
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
@@ -175,7 +181,8 @@ firma_koordinatlari = {
 
 # -------------------- STATE YÖNETİMİ ----------------------
 if "firma_bilgileri" not in st.session_state:
-    st.session_state["firma_bilgileri"] = varsayilan_firmalar.copy()
+    # kopyalayarak session'a al (lead_time_days ile birlikte)
+    st.session_state["firma_bilgileri"] = {k: v.copy() for k, v in varsayilan_firmalar.items()}
 if "yeni_firmalar" not in st.session_state:
     st.session_state["yeni_firmalar"] = []
 if "firma_koordinatlari" not in st.session_state:
@@ -222,9 +229,12 @@ with st.sidebar:
         atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri)
         miktar = st.number_input("Satmak istediğiniz ürün miktarı (kg)", min_value=1)
         fiyat = st.number_input("Ürünü ne kadara satmak istiyorsunuz? (TL/kg)", min_value=0.0)
+        # Temin süresi artık zorunlu
+        temin_suresi = st.number_input("Bu ürünü kaç günde temin edebilirsiniz? (gün) (zorunlu)", min_value=0, value=15)
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
         if kaydet_buton and firma_adi:
             yeni_id = firma_adi.strip()
+            # temin_suresi her zaman bir değer içerir çünkü min_value ve default verildi
             if yeni_id not in firma_bilgileri:
                 # Mevcut koordinatları listele
                 mevcut_koordinatlar = list(firma_koordinatlari.values())
@@ -234,12 +244,13 @@ with st.sidebar:
                 gps = yeni_koordinatlar[0]  # İlk yeni koordinatı al
                 firma_koordinatlari[yeni_id] = gps
 
-                #Firma bilgi güncellemesi
+                #Firma bilgi güncellemesi (lead_time_days zorunlu alan olarak eklenir)
                 firma_bilgileri[yeni_id] = {
                     "sektor": sektor_sec,
                     "atik": atik_turu,
                     "fiyat": fiyat,
-                    "miktar": miktar
+                    "miktar": miktar,
+                    "lead_time_days": int(temin_suresi)
                 }
                 st.session_state["yeni_firmalar"].append(yeni_id)
                 # EXCEL KAYDI:
@@ -257,12 +268,9 @@ with st.sidebar:
                 st.session_state["excel_data"].to_excel(excel_path, index=False)
                 st.success(f"{yeni_id} başarıyla eklendi!")
 
-                # --- EKLENECEK KISIM: Satıcının bildirdiği "15 gün sonra temin" tarihini hesapla ve göster ---
-                teslim_tarihi = date.today() + timedelta(days=15)
-                ay_adi = TURKISH_MONTHS[teslim_tarihi.month - 1]
-                st.info(f"Bu ürünü bugün itibarıyla 15 gün sonra temin edebilirsiniz: {teslim_tarihi.day} {ay_adi} {teslim_tarihi.year}.")
-                # ------------------------------------------------------------------------------------
-
+                # Göster: kayıt sonrası tahmini temin tarihi
+                teslim_tarihi = date.today() + timedelta(days=int(temin_suresi))
+                st.info(f"Kaydınız alındı. Bu ürünü bugün itibarıyla {temin_suresi} gün içinde temin edebilirsiniz: {format_tarih(teslim_tarihi)}.")
             else:
                 st.warning(f"{yeni_id} zaten sistemde mevcut.")
 
@@ -284,11 +292,12 @@ firma_bilgileri_tablo = {
     "Sektör": [v["sektor"] for v in firma_bilgileri.values()],
     "Ürün": [v["atik"] for v in firma_bilgileri.values()],
     "Miktar (kg)": [v["miktar"] for v in firma_bilgileri.values()],
-    "Fiyat (TL/kg)": [v["fiyat"] for v in firma_bilgileri.values()]
+    "Fiyat (TL/kg)": [v["fiyat"] for v in firma_bilgileri.values()],
+    "Temin Süresi (gün)": [v.get("lead_time_days", "") for v in firma_bilgileri.values()]
 }
 df = pd.DataFrame(firma_bilgileri_tablo)
 st.subheader("Firma Bilgileri")
-st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar ve fiyat bilgilerini göstermektedir.")
+st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar, fiyat ve temin süresi bilgilerini göstermektedir.")
 st.dataframe(df)
 
 # -------------------- MODEL & ŞEBEKE ----------------------
@@ -336,6 +345,35 @@ if secim == "Ürün almak istiyorum":
 
 # Şebeke grafiği yalnızca alım işlemi tamamlandıysa gösterilecek
 if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_alinan > 0:
+    # ---------- Yeni kısım: satıcı bilgilendirmelerini grafiğin üzerinde göster ----------
+    st.subheader("Satıcı Bilgilendirmeleri")
+    # Burada alıcının toplam talebi (miktar) ile karşılaştırarak mesajlar oluşturuyoruz.
+    for row in sonuc:
+        src = row["Gonderen"]
+        firma = firma_bilgileri.get(src, {})
+        firma_stok = firma.get("miktar", 0)
+        lead = firma.get("lead_time_days", None)
+
+        # Eğer firma toplam talebi karşılayabiliyorsa (tam stok varsa)
+        if firma_stok >= miktar:
+            st.success(f"{src} — Stoğumuz talebinizi karşılıyor. En kısa zamanda teslimat gerçekleşecektir.")
+        # Kısmi stok varsa
+        elif 0 < firma_stok < miktar:
+            kalan = max(0, miktar - firma_stok)
+            if lead is not None:
+                tahmini = date.today() + timedelta(days=lead)
+                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {kalan} kg için temin süresi: {lead} gün (tahmini: {format_tarih(tahmini)}).")
+            else:
+                st.warning(f"{src} — Elimizde {firma_stok} kg hazır; kalan {kalan} kg için temin süresi bildirilmemiş.")
+        # Stok yoksa
+        else:
+            if lead is not None:
+                tahmini = date.today() + timedelta(days=lead)
+                st.info(f"{src} — Bugünden itibaren {lead} gün içinde temin edilecektir (tahmini: {format_tarih(tahmini)}).")
+            else:
+                st.info(f"{src} — Temin süresi bildirilmemiş.")
+
+    # -------------------------------------------------------------------
     st.header("Şebeke Grafiği")
 
     # Şebeke grafiği için yönlü bir grafik oluştur
@@ -378,7 +416,7 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
     # Düğüm renklerini ve boyutlarını ayarla
     for node in grafik.nodes:
         if node == "Siz":
-            node_colors.append("red")  # Alıcı düğümü yeşil
+            node_colors.append("red")  # Alıcı düğümü kırmızı
             node_sizes.append(3000)      # Alıcı düğümü daha büyük
         else:
             sektor = firma_bilgileri[node]["sektor"] if node in firma_bilgileri else "Bilinmiyor"
@@ -433,4 +471,3 @@ st.image(
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
-
