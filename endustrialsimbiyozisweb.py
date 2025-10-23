@@ -122,6 +122,53 @@ st.markdown(
     h1, h2, h3, h4, h5, h6 {
         color: #1f5a3b !important;
     }
+
+    /* SIDEBAR STYLING */
+    /* Bu selector modern Streamlit sürümlerinde sidebar bölümü için güvenli bir seçicidir */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #eef8f1 0%, #e6f3ea 100%); /* yumuşak yeşil degrade */
+        border-right: 1px solid rgba(31,90,59,0.06);
+        padding: 18px 16px;
+    }
+    /* Sidebar içindeki başlık, etiket ve metin renkleri */
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] .css-1aumxhk { /* label variasyonları hedefleniyor */
+        color: #0f4b3f !important;
+    }
+    /* Sidebar içindeki buton görünümü */
+    [data-testid="stSidebar"] button, 
+    [data-testid="stSidebar"] .stButton>button {
+        background-color: #1f5a3b !important;
+        color: #ffffff !important;
+        border-radius: 8px;
+        padding: 6px 10px;
+    }
+    /* Sidebar içindeki input/selcetbox gibi alanlara hafif arka plan */
+    [data-testid="stSidebar"] .stTextInput>div>div>input,
+    [data-testid="stSidebar"] .stNumberInput>div>div>input,
+    [data-testid="stSidebar"] .stSelectbox>div>div>div,
+    [data-testid="stSidebar"] .stMultiSelect>div>div>div {
+        background-color: rgba(255,255,255,0.95) !important;
+        border-radius: 6px;
+        color: #0f3b2d;
+    }
+    /* Küçük incelik: sidebar içindeki uyarı/metinlerin kontrastı */
+    [data-testid="stSidebar"] .stInfo, 
+    [data-testid="stSidebar"] .stWarning, 
+    [data-testid="stSidebar"] .stError {
+        color: inherit;
+    }
+
+    /* Responsive: dar ekranlarda padding'i azalt */
+    @media (max-width: 640px) {
+        [data-testid="stSidebar"] {
+            padding: 12px 10px;
+        }
+    }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -136,7 +183,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 # Başlık
-st.title("Endüstriyel Simbiyoz İçin Dijital Eşleşme Modülü")
+st.title("Kaizen Connect: Sanayide Atığı Değere Dönüştüren Dijital Platform")
 st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
 st.write("""
 🍃 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
@@ -148,7 +195,7 @@ Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceğ
 st.markdown("""
 🌱 **Vizyonumuz**
 
-Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
+♻️Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
 Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
 Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.✨
 
@@ -162,7 +209,7 @@ Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüşt
 
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
-    caption="Örnek Endüstriyel Simbiyoz Ağı",
+    caption="Örnek Endüstriyel Simbiyoz Ağı 🌍",
     use_container_width=True
 )
 # -------------------- SABİT VERİLER ----------------------
@@ -220,7 +267,7 @@ varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 
 # -------------------- SIDEBAR ----------------------
 with st.sidebar:
-    st.title("Kullanıcı Seçimi")
+    st.title("🌾 Kullanıcı Seçimi")
 
     secim = st.radio(
         "⚙️Ne yapmak istiyorsunuz?",
