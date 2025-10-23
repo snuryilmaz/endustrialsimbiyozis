@@ -122,6 +122,20 @@ st.markdown(
     h1, h2, h3, h4, h5, h6 {
         color: #1f5a3b !important;
     }
+
+    /* Görsel çerçevesi: orta kalınlıkta yeşil çerçeve, hafif gölge ve yuvarlatılmış köşe */
+    .img-frame {
+        display: flex;
+        justify-content: center;
+        margin: 18px auto;
+    }
+    .img-frame img {
+        border: 6px solid #1f5a3b; /* çerçeve kalınlığı ve rengi burada (6px orta kalınlık) */
+        border-radius: 8px;
+        max-width: 100%;
+        height: auto;
+        box-shadow: 0 6px 18px rgba(31,90,59,0.08);
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -144,8 +158,9 @@ Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel
 Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
 """)
 
+# Vizyon ve Misyon bölümü (kullanıcının verdiği metin, emoji destekli)
 st.markdown("""
-🌱  **Vizyonumuz**
+🌱 **Vizyonumuz**
 
 Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
 Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
@@ -159,11 +174,16 @@ Amacımız, sanayiye hem çevresel hem ekonomik anlamda değer katmak — yani s
 Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍🔄
 """)
 
-st.image(
-    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
-    caption="Örnek Endüstriyel Simbiyoz Ağı",
-    use_container_width=True
+# Görsel: img-frame sınıfı ile çerçeveli gösterim
+st.markdown(
+    """
+    <div class="img-frame">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png" alt="Örnek Endüstriyel Simbiyoz Ağı">
+    </div>
+    """,
+    unsafe_allow_html=True
 )
+
 # -------------------- SABİT VERİLER ----------------------
 # Mevcut firmalara rastgele temin süresi (0-15 gün) atıyoruz
 varsayilan_firmalar = {
