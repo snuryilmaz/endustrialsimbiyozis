@@ -96,16 +96,53 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
 st.markdown(
     """
     <style>
+    /* Arka plan resmi daha net görünmesi için kontrast ve doygunluk arttırıldı.
+       Aynı zamanda uygulama içi beyaz alan koyulaştırıldı ki beyaz yazılar olmasa da
+       içerik okunur olsun. Metinler siyah renge çekildi. Başlıklara "marker" stili eklendi. */
+
     body {
         background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
+        background-position: center;
+        /* Görüntüyü biraz daha net ve canlı göster */
+        filter: contrast(1.05) saturate(1.08);
     }
+
+    /* Uygulama ana kutusu: içeriğin arka planını daha opak/kapalı yapıyoruz */
     .stApp {
-        background-color: rgba(255, 255, 255, 0.6);
+        background-color: rgba(255, 255, 255, 0.92) !important;
         padding-top: 40px;
+        color: #000 !important; /* Tüm temel metinleri siyah yap */
+        -webkit-font-smoothing: antialiased;
+        font-weight: 400;
     }
+
+    /* Genel metin elemanları siyah */
+    .stApp, .stApp .css-1d391kg, .stMarkdown, .stText, .css-1kyxreq {
+        color: #000 !important;
+    }
+
+    /* Başlıklara sol tarafta renkli bir marker çubuğu veren stil.
+       Ayrıca başlık arkasına hafif saydam beyaz kutu koyarak okunurluk artırıldı. */
+    h1, h2, h3, h4, h5, h6 {
+        display: inline-block;
+        background: rgba(255,255,255,0.95);
+        color: #000 !important;
+        padding: 6px 12px;
+        margin: 8px 0;
+        border-left: 8px solid #2e7d32;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    /* Başlıkların mobil/çift satır durumlarında taşmaması için block düzeni */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+        display: block;
+    }
+
+    /* Logo kutusunun hala beyaz ve belirgin kalması */
     .logo-container {
         position: fixed;
         top: 30px;
@@ -119,8 +156,42 @@ st.markdown(
     .logo-container img {
         height: 90px;
     }
-    h1, h2, h3, h4, h5, h6 {
-        color: #2e7d32 !important;
+
+    /* Bilgilendirme, uyarı ve başarı kutularını biraz daha koyu arka planlı yap */
+    .stAlert, .stAlert > div, .stInfo, .stWarning, .stSuccess {
+        color: #000 !important;
+    }
+    /* Streamlit'in info/warning/success kutuları için ek kontrast */
+    .css-1offfwp.e1fqkh3o4, .css-1d391kg { 
+        background-color: rgba(255,255,255,0.96) !important;
+        color: #000 !important;
+    }
+
+    /* Dataframe caption/başlık renkleri */
+    .stDataFrame table {
+        color: #000 !important;
+    }
+
+    /* Grafik başlığını belirginleştir */
+    .block-container .element-container h2 {
+        background: rgba(255,255,255,0.95);
+        padding: 6px 10px;
+        border-left: 8px solid #2e7d32;
+        border-radius: 6px;
+        display: inline-block;
+        color: #000 !important;
+    }
+
+    /* Küçük cihazlarda yatay taşmaları önlemek */
+    @media (max-width: 600px) {
+        h1, h2, h3, h4, h5, h6 {
+            padding: 6px 8px;
+            border-left-width: 6px;
+        }
+        .logo-container {
+            right: 8px;
+            top: 8px;
+        }
     }
     </style>
     """,
@@ -143,7 +214,10 @@ Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ü
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
 Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
 """)
-
+st.markdown("""
+**Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri  
+Aylin ÖZMEN, Halime GENÇ, Sema Nur YILMAZ ve Zeynep KİKİ tarafından 2024/2025 Bahar dönemi LİSANS BİTİRME projesi kapsamında hazırlanmıştır.**
+""")
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
@@ -512,4 +586,3 @@ st.image(
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
-
