@@ -186,7 +186,7 @@ st.markdown(
 st.title("Kaizen Connect: Sanayide Atığı Değere Dönüştüren Dijital Platform")
 st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
 st.write("""
-🍃 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
+Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
 Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.✨
 """)
@@ -195,21 +195,21 @@ Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceğ
 st.markdown("""
 🌱 **Vizyonumuz**
 
-♻️Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
+Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
 Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
 Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.✨
 
 🌱 **Misyonumuz**
 
-🤝Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
+Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
 Veri odaklı analizlerle doğru eşleşmeleri yapıyor, israfı azaltırken verimliliği artırıyoruz.  
 Amacımız, sanayiye hem çevresel hem ekonomik anlamda değer katmak — yani sürdürülebilirliği işin merkezine taşımak.  
-Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍🔄
+Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍
 """)
 
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
-    caption="Örnek Endüstriyel Simbiyoz Ağı 🌍",
+    caption="Örnek Endüstriyel Simbiyoz Ağı ",
     use_container_width=True
 )
 # -------------------- SABİT VERİLER ----------------------
@@ -270,7 +270,7 @@ with st.sidebar:
     st.title("🌾 Kullanıcı Seçimi")
 
     secim = st.radio(
-        "⚙️Ne yapmak istiyorsunuz?",
+        "Ne yapmak istiyorsunuz?",
         ["Ürün almak istiyorum", "Satıcı kaydı yapmak istiyorum"],
         index=0
     )
@@ -575,3 +575,4 @@ st.image(
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
