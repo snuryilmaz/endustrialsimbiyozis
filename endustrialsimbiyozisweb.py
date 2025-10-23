@@ -96,14 +96,15 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
 st.markdown(
     """
     <style>
+    /* Arka plan resmi kaldırıldı ve açık yeşil arka plan ayarlandı */
     body {
-        background-image: url('https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/arsinosb.jpg');
-        background-size: cover;
+        background-color: #b9f6ca; /* Açık yeşil */
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
+    /* Streamlit uygulama kartlarını şeffaf bıraktık ki tüm sayfa yeşil olsun */
     .stApp {
-        background-color: rgba(255, 255, 255, 0.6);
+        background-color: transparent;
         padding-top: 40px;
     }
     .logo-container {
