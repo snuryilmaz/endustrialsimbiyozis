@@ -1,6 +1,9 @@
-# Endüstriyel Simbiyozis
+# Kaizen Connect: Sanayide Atığı Değere Dönüştüren Dijital Platform
 
-Bu proje, KTÜ Endüstri Mühendisliği öğrencileri tarafından Trabzon/Arsin OSB'de endüstriyel simbiyoz kapsamında Alıcı ve Satıcı firmaları eşleştirici bir arayüz oluşturmak için tasarlanmıştır. 
+🌱Vizyonumuz
+Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.
+🌱 Misyonumuz
+Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.
 
 ## Gereksinimler
 
