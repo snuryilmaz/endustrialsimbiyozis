@@ -122,20 +122,6 @@ st.markdown(
     h1, h2, h3, h4, h5, h6 {
         color: #1f5a3b !important;
     }
-
-    /* Görsel çerçevesi: orta kalınlıkta yeşil çerçeve, hafif gölge ve yuvarlatılmış köşe */
-    .img-frame {
-        display: flex;
-        justify-content: center;
-        margin: 18px auto;
-    }
-    .img-frame img {
-        border: 6px solid #1f5a3b; /* çerçeve kalınlığı ve rengi burada (6px orta kalınlık) */
-        border-radius: 8px;
-        max-width: 100%;
-        height: auto;
-        box-shadow: 0 6px 18px rgba(31,90,59,0.08);
-    }
     </style>
     """,
     unsafe_allow_html=True
@@ -151,11 +137,11 @@ st.markdown(
 )
 # Başlık
 st.title("Endüstriyel Simbiyoz İçin Dijital Eşleşme Modülü")
-st.subheader("Endüstriyel Simbiyoz Nedir?")
+st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
 st.write("""
-Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
+🍃 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
-Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
+Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.✨
 """)
 
 # Vizyon ve Misyon bölümü (kullanıcının verdiği metin, emoji destekli)
@@ -164,26 +150,21 @@ st.markdown("""
 
 Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
 Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
-Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.
+Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.✨
 
 🌱 **Misyonumuz**
 
-Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
+🤝Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
 Veri odaklı analizlerle doğru eşleşmeleri yapıyor, israfı azaltırken verimliliği artırıyoruz.  
 Amacımız, sanayiye hem çevresel hem ekonomik anlamda değer katmak — yani sürdürülebilirliği işin merkezine taşımak.  
 Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍🔄
 """)
 
-# Görsel: img-frame sınıfı ile çerçeveli gösterim
-st.markdown(
-    """
-    <div class="img-frame">
-        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png" alt="Örnek Endüstriyel Simbiyoz Ağı">
-    </div>
-    """,
-    unsafe_allow_html=True
+st.image(
+    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
+    caption="Örnek Endüstriyel Simbiyoz Ağı",
+    use_container_width=True
 )
-
 # -------------------- SABİT VERİLER ----------------------
 # Mevcut firmalara rastgele temin süresi (0-15 gün) atıyoruz
 varsayilan_firmalar = {
@@ -242,7 +223,7 @@ with st.sidebar:
     st.title("Kullanıcı Seçimi")
 
     secim = st.radio(
-        "Ne yapmak istiyorsunuz?",
+        "⚙️Ne yapmak istiyorsunuz?",
         ["Ürün almak istiyorum", "Satıcı kaydı yapmak istiyorum"],
         index=0
     )
