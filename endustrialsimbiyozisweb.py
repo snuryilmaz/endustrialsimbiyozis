@@ -143,6 +143,22 @@ Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ü
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
 Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
 """)
+
+st.markdown("""
+🌱  **Vizyonumuz**
+
+Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
+Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
+Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.
+
+🌱 **Misyonumuz**
+
+Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
+Veri odaklı analizlerle doğru eşleşmeleri yapıyor, israfı azaltırken verimliliği artırıyoruz.  
+Amacımız, sanayiye hem çevresel hem ekonomik anlamda değer katmak — yani sürdürülebilirliği işin merkezine taşımak.  
+Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍🔄
+""")
+
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
