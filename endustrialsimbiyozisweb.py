@@ -144,10 +144,6 @@ Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ü
 Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
 Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.
 """)
-st.markdown("""
-**Bu araç Karadeniz Teknik Üniversitesi Endüstri Mühendisliği Öğrencileri  
-Aylin ÖZMEN, Halime GENÇ, Sema Nur YILMAZ ve Zeynep KİKİ tarafından 2024/2025 Bahar dönemi LİSANS BİTİRME projesi kapsamında hazırlanmıştır.**
-""")
 st.image(
     "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
     caption="Örnek Endüstriyel Simbiyoz Ağı",
@@ -516,3 +512,4 @@ st.image(
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
