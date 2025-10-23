@@ -96,15 +96,14 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
 st.markdown(
     """
     <style>
-    /* Arka plan resmi kaldırıldı ve açık yeşil arka plan ayarlandı */
+    /* Seçenek 1: Soft krem arka plan */
     body {
-        background-color: #b9f6ca; /* Açık yeşil */
-        background-repeat: no-repeat;
+        background-color: #faf7f0; /* çok açık krem */
         background-attachment: fixed;
     }
-    /* Streamlit uygulama kartlarını şeffaf bıraktık ki tüm sayfa yeşil olsun */
+    /* Streamlit uygulama kartlarını hafif opak bıraktık ki içerik rahatça okunabilsin */
     .stApp {
-        background-color: transparent;
+        background-color: rgba(255,255,255,0.92);
         padding-top: 40px;
     }
     .logo-container {
@@ -121,7 +120,7 @@ st.markdown(
         height: 90px;
     }
     h1, h2, h3, h4, h5, h6 {
-        color: #2e7d32 !important;
+        color: #1f5a3b !important;
     }
     </style>
     """,
@@ -512,4 +511,3 @@ st.image(
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
-
