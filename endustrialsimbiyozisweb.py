@@ -183,7 +183,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 # Başlık
-st.title("Kaizen Connect: Sanayide Atığı Değere Dönüştüren Dijital Platform")
+st.title("Kaizuna: Sanayide Atığı Değere Dönüştüren Dijital Platform")
 st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
 st.write("""
 🍃 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
@@ -571,3 +571,4 @@ if os.path.exists(excel_path):
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
