@@ -15,17 +15,19 @@ st.markdown(
     <style>
     body { background: linear-gradient(180deg, #e7fbe7 0%, #d0f5db 100%); }
     .stApp { background-color: rgba(255,255,255,0.98); }
-    .nav-bar {
-        width: 100vw;
-        margin-left: 0;
-        background: linear-gradient(90deg, #D5F5E3 0%, #ABEBC6 100%);
-        box-shadow: 0 2px 12px rgba(32,201,151,0.07);
-        padding: 15px 0;
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-        border-radius: 0 0 16px 16px;
-    }
+    .nav-bar, .section-footer, [data-testid="stSidebar"]  {
+    background: linear-gradient(90deg, #D5F5E3 0%, #ABEBC6 100%);
+    box-shadow: 0 2px 12px rgba(32,201,151,0.07);
+}
+.nav-bar {
+    width: 100vw;
+    margin-left: 0;
+    border-radius: 0 0 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    padding: 15px 0;
+}
     .nav-bar .menu {
         display: flex;
         justify-content: flex-start;
@@ -36,7 +38,7 @@ st.markdown(
         margin-left: 32px;
     }
     .nav-bar .menu a {
-        color: #50C878;
+        color: #158f6a;
         text-decoration: none;
         transition: background 0.2s, color 0.2s;
         padding: 6px 16px;
@@ -49,13 +51,13 @@ st.markdown(
         color: #fff;
     }
     .section-footer {
-        margin-top: 44px;
+        margin-top: 25px;
         padding: 36px 16px 36px 16px;
         border-radius: 24px;
-        background: #f4fff7;
+        background: linear-gradient(90deg, #D5F5E3 0%, #ABEBC6 100%);
         box-shadow: 0 1px 5px rgba(32,201,151,0.07);
         width: 100%;
-    }
+}
     .section-title {
         font-size: 29px;
         color: #158f6a;
@@ -87,14 +89,38 @@ st.markdown(
         transition: background 0.2s;
     }
     .subscribe-form button:hover { background: #b8eac7; color: #fff;}
-    @media (max-width: 700px){
-        .nav-bar .menu { gap: 12px; font-size:16px; margin-left:10px;}
-        .section-footer {padding:20px 2px 20px 2px;}
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+   [data-testid="stSidebar"] {
+    border-right: 1px solid rgba(31,90,59,0.06);
+    padding: 18px 16px;
+}
+[data-testid="stSidebar"] h1, 
+[data-testid="stSidebar"] h2, 
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .css-1aumxhk {
+    color: #0f4b3f !important;
+}
+[data-testid="stSidebar"] button, 
+[data-testid="stSidebar"] .stButton>button {
+    background-color: #1f5a3b !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+[data-testid="stSidebar"] .stTextInput>div>div>input,
+[data-testid="stSidebar"] .stNumberInput>div>div>input,
+[data-testid="stSidebar"] .stSelectbox>div>div>div,
+[data-testid="stSidebar"] .stMultiSelect>div>div>div {
+    background-color: rgba(255,255,255,0.95) !important;
+    border-radius: 6px;
+    color: #0f3b2d;
+}
+@media (max-width: 700px){
+    .nav-bar .menu { gap: 12px; font-size:16px; margin-left:10px;}
+    .section-footer {padding:20px 2px 20px 2px;}
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- NAVBAR ---
 st.markdown("""
@@ -815,6 +841,7 @@ st.markdown("""
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
