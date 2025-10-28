@@ -435,7 +435,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-)
 
 # -------------------- STATE YÖNETİMİ ----------------------
 if "firma_bilgileri" not in st.session_state:
@@ -823,6 +822,7 @@ st.markdown("""
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
