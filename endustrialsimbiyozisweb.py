@@ -9,8 +9,6 @@ import os
 import random
 from datetime import date, timedelta
 import streamlit as st
-st.title("Başarılı! Streamlit uygulaman yüklendi.")
-# Backend klasöründen sabit veri ve fonksiyonları import et
 import sys
 sys.path.append('./backend')
 
@@ -620,3 +618,4 @@ if os.path.exists(excel_path):
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
