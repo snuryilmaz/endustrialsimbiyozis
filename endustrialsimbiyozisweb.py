@@ -20,8 +20,8 @@ st.markdown(
     box-shadow: 0 2px 12px rgba(32,201,151,0.07);
 }
 .nav-bar {
-    width: calc(100vw - 300px); /* Sidebar genişliği kadar azalt */
-    margin-left: 300px;          /* Sidebar genişliği kadar boşluk bırak */
+    margin-left: 320px; /* sidebar genişliği kadar boşluk */
+    width: calc(100vw - 320px);
     background: linear-gradient(90deg, #D5F5E3 0%, #ABEBC6 100%);
     box-shadow: 0 2px 12px rgba(32,201,151,0.07);
     padding: 15px 0;
@@ -30,15 +30,14 @@ st.markdown(
     z-index: 9999;
     border-radius: 0 0 16px 16px;
 }
-    .nav-bar .menu {
-        display: flex;
-        justify-content: flex-start;
-        gap: 30px;
-        font-family: Montserrat, sans-serif;
-        font-weight: 600;
-        font-size: 19px;
-        margin-left: 32px;
-    }
+.nav-bar .menu {
+    display: flex;
+    justify-content: center; /* ortala! */
+    gap: 30px;
+    font-family: Montserrat, sans-serif;
+    font-weight: 600;
+    font-size: 19px;
+}
     .nav-bar .menu a {
         color: #158f6a;
         text-decoration: none;
@@ -847,6 +846,7 @@ st.markdown("""
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
