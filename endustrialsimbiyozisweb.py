@@ -20,8 +20,8 @@ st.markdown(
     box-shadow: 0 2px 12px rgba(32,201,151,0.07);
 }
 .nav-bar {
-    margin-left: 320px; /* sidebar genişliği kadar boşluk */
-    width: calc(100vw - 320px);
+    width: 100%; /* Tüm sayfa genişliğini kapla, viewport değil */
+    margin-left: 0;
     background: linear-gradient(90deg, #D5F5E3 0%, #ABEBC6 100%);
     box-shadow: 0 2px 12px rgba(32,201,151,0.07);
     padding: 15px 0;
@@ -29,14 +29,18 @@ st.markdown(
     top: 0;
     z-index: 9999;
     border-radius: 0 0 16px 16px;
+    display: flex;
+    justify-content: center; /* Ortala */
+    align-items: center;
 }
 .nav-bar .menu {
     display: flex;
-    justify-content: center; /* ortala! */
+    justify-content: center; /* Menüleri ortaya al */
     gap: 30px;
     font-family: Montserrat, sans-serif;
     font-weight: 600;
     font-size: 19px;
+    margin-left: 0; /* Sola boşluk bırakma */
 }
     .nav-bar .menu a {
         color: #158f6a;
@@ -117,11 +121,7 @@ st.markdown(
     color: #0f3b2d;
 }
 @media (max-width: 700px){
-    .nav-bar {
-        width: 100vw;
-        margin-left: 0;
-    }
-    .nav-bar .menu { gap: 12px; font-size:16px; margin-left:10px;}
+    .nav-bar .menu { gap: 12px; font-size:16px; margin-left:0;}
     .section-footer {padding:20px 2px 20px 2px;}
 }
 </style>
@@ -846,6 +846,7 @@ st.markdown("""
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
