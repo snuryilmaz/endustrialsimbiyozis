@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "postgresql://username:password@localhost/simbiyoz"
-engine = create_engine(DATABASE_URL)
+DATABASE_URL = "sqlite:///./test.db"  # Hızlı başlamak için SQLite önerilir!
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
