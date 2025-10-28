@@ -1,7 +1,7 @@
 plan
 endustriyel-simbiyoz-platform/
 │
-├── backend/
+├── backend/          # Python FastAPI + veritabanı
 │   ├── main.py
 │   ├── models.py
 │   ├── db.py
@@ -10,13 +10,24 @@ endustriyel-simbiyoz-platform/
 │       ├── firma.py
 │       └── atik.py
 │
-├── frontend/
+├── frontend/         # React ile modern arayüz
 │   ├── package.json
 │   └── src/
 │       ├── App.js
-│       └── components/
-│           ├── Firmalar.js
-│           └── Atiklar.js
+│       ├── index.js
+│       ├── pages/
+│           ├── Home.js
+│           ├── About.js
+│           ├── Contact.js
+│           ├── Subscribe.js
+│           ├── FAQ.js
+│           ├── Firms.js
+│           └── Waste.js
+│       ├── components/
+│           ├── Navbar.js
+│           ├── Footer.js
+│           └── FirmCard.js
+│       └── theme.js
 │
-├── web.py
+├── web.py            # Ana yönetici dosya
 └── README.md
