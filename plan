@@ -1,0 +1,21 @@
+plan
+endustriyel-simbiyoz-platform/
+│
+├── backend/      ← Python ile yazılacak, sunucu tarafı (API, veritabanı)
+│   ├── main.py
+│   ├── models.py
+│   ├── db.py
+│   └── routers/
+│       ├── firma.py
+│       └── atik.py
+│
+├── frontend/     ← React ile yazılacak, kullanıcı arayüzü
+│   ├── package.json
+│   └── src/
+│       ├── App.js
+│       └── components/
+│           ├── Firmalar.js
+│           └── Atiklar.js
+│
+├── web.py        ← Projenin ana dosyası (backend’i başlatmak için)
+└── README.md     ← Açıklama dosyası
