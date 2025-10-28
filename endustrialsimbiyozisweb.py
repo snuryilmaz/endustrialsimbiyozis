@@ -36,7 +36,7 @@ st.markdown(
         margin-left: 32px;
     }
     .nav-bar .menu a {
-        color: #158f6a;
+        color: #50C878;
         text-decoration: none;
         transition: background 0.2s, color 0.2s;
         padding: 6px 16px;
@@ -117,8 +117,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
 # Başlık
 st.title("Kaizuna: Sanayide Atığı Değere Dönüştüren Dijital Platform")
 st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
@@ -149,9 +147,7 @@ st.image(
     caption="Örnek Endüstriyel Simbiyoz Ağı 🌍",
     use_container_width=True
 )
-
 # -------------------- SABİT VERİLER ----------------------
-# Mevcut firmalara rastgele temin süresi (0-15 gün) atıyoruz
 varsayilan_firmalar = {
     "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100, "lead_time_days": random.randint(0, 15)},
     "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200, "lead_time_days": random.randint(0, 15)},
@@ -161,12 +157,10 @@ varsayilan_firmalar = {
     "Firma 6": {"sektor": "Makine İmalat", "atik": "Elektronik Atıklar", "fiyat": 20, "miktar": 100, "lead_time_days": random.randint(0, 15)},
     "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200, "lead_time_days": random.randint(0, 15)},
     "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400, "lead_time_days": random.randint(0, 15)},
-    # Yeni eklenen firmalar:
     "Firma 9": {"sektor": "Gıda", "atik": "Yemek Artıkları", "fiyat": 2, "miktar": 250, "lead_time_days": random.randint(0, 15)},
     "Firma 10": {"sektor": "Kağıt & Ambalaj", "atik": "Karton", "fiyat": 1.2, "miktar": 650, "lead_time_days": random.randint(0, 15)},
 }
 
-# Güncelleme: yeni sektörler eklendi. "Yem ve Mama Üretim" sektörü atık üretmiyor (boş liste).
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
@@ -185,7 +179,6 @@ firma_koordinatlari = {
     "Firma 6": (41.0250, 39.7350),
     "Firma 7": (41.0300, 39.7400),
     "Firma 8": (41.0350, 39.7450),
-    # Yeni firmalar için koordinatlar
     "Firma 9": (41.0400, 39.7500),
     "Firma 10": (41.0450, 39.7550),
 }
@@ -762,12 +755,12 @@ st.markdown("""
 <div class="section-footer" id="iletisim">
     <div class="section-title">İletişim</div>
     <div class="section-content">
-        <b>Email:</b> <a href="mailto:info@kaizuna.com">info@kaizuna.com</a><br>
-        <b>Telefon:</b> <a href="tel:+905501234567">+90 550 123 45 67</a><br>
-        <b>Adres:</b> Yeşil Sanayi Sitesi, İstanbul <br>
+        <b>Email:</b> <a href="mailto:kaizenn25@outlook.com">kaizenn25@outlook.com</a><br>
+        <b>Telefon:</b> <a href="tel:+905526021365">+90 5526021365</a><br>
+        <b>Adres:</b> Yeşil Sanayi Ütopyası, Dünya <br>
         <b>Sosyal Medya:</b>
         <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a> |
-        <a href="https://twitter.com/" target="_blank">Twitter</a>
+        <a href="https://instagram.com/" target="_blank">instagram</a>
     </div>
 </div>
 <div class="section-footer" id="sss">
@@ -822,6 +815,7 @@ st.markdown("""
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
