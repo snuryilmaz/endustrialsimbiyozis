@@ -1,7 +1,9 @@
-from fastapi import FastAPI
-from backend.routers import firma, atik
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Endustriyel Simbiyoz Backend")
-
-app.include_router(firma.router)
-app.include_router(atik.router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
