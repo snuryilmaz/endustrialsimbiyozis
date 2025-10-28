@@ -6,17 +6,8 @@ import qrcode
 import io
 import math
 import os
-import base64
 import random
 from datetime import date, timedelta
-import streamlit as st
-import sys
-sys.path.append('./backend')
-
-from backend.static_data import varsayilan_firmalar, turikler, firma_koordinatlari
-from backend.optimize import optimize_waste_allocation, get_new_coordinates
-
-import streamlit as st
 
 # --- ARAYÜZ STİLİ ---
 st.markdown(
@@ -58,7 +49,7 @@ st.markdown(
         color: #fff;
     }
     .section-footer {
-        margin-top: 110px;
+        margin-top: 44px;
         padding: 36px 16px 36px 16px;
         border-radius: 24px;
         background: #f4fff7;
@@ -117,75 +108,16 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Ana başlık kaldırıldı ---
-
-# --- KODUN DEVAMI (SENİN ANA İÇERİĞİN) YUKARIDA OLABİLİR ---
-
-# --- EN ALTA FOOTER KUTULARI ---
-st.markdown("""
-<div class="section-footer" id="hakkimizda">
-    <div class="section-title">Hakkımızda</div>
-    <div class="section-content">
-        <b>Kaizuna</b>, sanayide atığı değere dönüştüren yenilikçi bir platformdur. <br>
-        Vizyonumuz: Atığın değer kazandığı, paylaşımcı ve sürdürülebilir bir sanayi.<br>
-        Misyonumuz: Atığı başka bir firmanın hammaddesi yapmak, çevresel ve ekonomik fayda sağlamak.
+# --- LOGO ---
+st.markdown(
+    """
+    <div class="logo-container" style="position: fixed; top: 30px; right: 24px; z-index:9999;">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Logo" style="height:90px;">
     </div>
-</div>
-<div class="section-footer" id="iletisim">
-    <div class="section-title">İletişim</div>
-    <div class="section-content">
-        <b>Email:</b> <a href="mailto:info@kaizuna.com">info@kaizuna.com</a><br>
-        <b>Telefon:</b> <a href="tel:+905501234567">+90 550 123 45 67</a><br>
-        <b>Adres:</b> Yeşil Sanayi Sitesi, İstanbul <br>
-        <b>Sosyal Medya:</b>
-        <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a> |
-        <a href="https://twitter.com/" target="_blank">Twitter</a>
-    </div>
-</div>
-<div class="section-footer" id="sss">
-    <div class="section-title">Sıkça Sorulan Sorular (SSS)</div>
-    <div class="section-content">
-        <b>Endüstriyel simbiyoz nedir?</b> Bir firmanın atığının başka bir firmanın hammaddesine dönüşmesidir.<br>
-        <b>Platforma nasıl kayıt olurum?</b> “Abone Ol” kısmından emailinizi bırakabilirsiniz.<br>
-        <b>Verilerim güvende mi?</b> Evet, tüm veri işlemleri şifreli ve KVKK’ya uygundur.<br>
-    </div>
-</div>
-<div class="section-footer" id="abone-ol">
-    <div class="section-title">Abone Ol</div>
-    <div class="section-content">
-        <form class="subscribe-form">
-            <input type="email" name="email" placeholder="Email adresiniz">
-            <button type="submit">Abone Ol</button>
-        </form>
-        <br>
-        <small style="color:#158f6a;">Yeniliklerden haberdar olmak için abone olun!</small>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
 
-# --- SCROLL TO BOTTOM FONKSİYONU ---
-st.markdown("""
-<script>
-document.querySelectorAll('.nav-bar .menu a').forEach(function(link){
-    link.addEventListener('click', function(e){
-        var id = link.getAttribute('href').substring(1);
-        var el = document.getElementById(id);
-        if(el){
-            e.preventDefault();
-            el.scrollIntoView({behavior:'smooth'});
-        }
-    });
-});
-</script>
-""", unsafe_allow_html=True)
-
-# --- Footer yazısı ---
-st.markdown("""
-<hr>
-<div style="text-align:center;color:#158f6a;font-size:15px;">
-    Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
-</div>
-""", unsafe_allow_html=True)
 excel_path = "kayitlar.xlsx"
 if "excel_data" not in st.session_state:
     if os.path.exists(excel_path):
@@ -813,6 +745,73 @@ if os.path.exists(excel_path):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download-excel"
         )
+
+# --- EN ALTA FOOTER KUTULARI ---
+st.markdown("""
+<div class="section-footer" id="hakkimizda">
+    <div class="section-title">Hakkımızda</div>
+    <div class="section-content">
+        <b>Kaizuna</b>, sanayide atığı değere dönüştüren yenilikçi bir platformdur. <br>
+        Vizyonumuz: Atığın değer kazandığı, paylaşımcı ve sürdürülebilir bir sanayi.<br>
+        Misyonumuz: Atığı başka bir firmanın hammaddesi yapmak, çevresel ve ekonomik fayda sağlamak.
+    </div>
+</div>
+<div class="section-footer" id="iletisim">
+    <div class="section-title">İletişim</div>
+    <div class="section-content">
+        <b>Email:</b> <a href="mailto:info@kaizuna.com">info@kaizuna.com</a><br>
+        <b>Telefon:</b> <a href="tel:+905501234567">+90 550 123 45 67</a><br>
+        <b>Adres:</b> Yeşil Sanayi Sitesi, İstanbul <br>
+        <b>Sosyal Medya:</b>
+        <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a> |
+        <a href="https://twitter.com/" target="_blank">Twitter</a>
+    </div>
+</div>
+<div class="section-footer" id="sss">
+    <div class="section-title">Sıkça Sorulan Sorular (SSS)</div>
+    <div class="section-content">
+        <b>Endüstriyel simbiyoz nedir?</b> Bir firmanın atığının başka bir firmanın hammaddesine dönüşmesidir.<br>
+        <b>Platforma nasıl kayıt olurum?</b> “Abone Ol” kısmından emailinizi bırakabilirsiniz.<br>
+        <b>Verilerim güvende mi?</b> Evet, tüm veri işlemleri şifreli ve KVKK’ya uygundur.<br>
+    </div>
+</div>
+<div class="section-footer" id="abone-ol">
+    <div class="section-title">Abone Ol</div>
+    <div class="section-content">
+        <form class="subscribe-form">
+            <input type="email" name="email" placeholder="Email adresiniz">
+            <button type="submit">Abone Ol</button>
+        </form>
+        <br>
+        <small style="color:#158f6a;">Yeniliklerden haberdar olmak için abone olun!</small>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- SCROLL TO BOTTOM FONKSİYONU ---
+st.markdown("""
+<script>
+document.querySelectorAll('.nav-bar .menu a').forEach(function(link){
+    link.addEventListener('click', function(e){
+        var id = link.getAttribute('href').substring(1);
+        var el = document.getElementById(id);
+        if(el){
+            e.preventDefault();
+            el.scrollIntoView({behavior:'smooth'});
+        }
+    });
+});
+</script>
+""", unsafe_allow_html=True)
+
+# --- Footer yazısı ---
+st.markdown("""
+<hr>
+<div style="text-align:center;color:#158f6a;font-size:15px;">
+    Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
+</div>
+""", unsafe_allow_html=True)
+
 # Not: "Çalışılan 8 OSB firmasının konumları" görseli isteğiniz doğrultusunda kaldırıldı.
 # -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
 #qr_link = "https://endustrialsimbiyrazils/snuryilmazktu.streamlit.app/"
@@ -820,6 +819,7 @@ if os.path.exists(excel_path):
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
