@@ -118,6 +118,78 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
+# Başlık
+st.title("Kaizuna: Sanayide Atığı Değere Dönüştüren Dijital Platform")
+st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
+st.write("""
+🍃 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
+Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
+Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.✨
+""")
+
+# Vizyon ve Misyon bölümü (kullanıcının verdiği metin, emoji destekli)
+st.markdown("""
+🌱 **Vizyonumuz**
+
+♻️Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
+Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
+Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.✨
+
+🌱 **Misyonumuz**
+
+🤝Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
+Veri odaklı analizlerle doğru eşleşmeleri yapıyor, israfı azaltırken verimliliği artırıyoruz.  
+Amacımız, sanayiye hem çevresel hem ekonomik anlamda değer katmak — yani sürdürülebilirliği işin merkezine taşımak.  
+Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍🔄
+""")
+
+st.image(
+    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
+    caption="Örnek Endüstriyel Simbiyoz Ağı 🌍",
+    use_container_width=True
+)
+
+# -------------------- SABİT VERİLER ----------------------
+# Mevcut firmalara rastgele temin süresi (0-15 gün) atıyoruz
+varsayilan_firmalar = {
+    "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100, "lead_time_days": random.randint(0, 15)},
+    "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200, "lead_time_days": random.randint(0, 15)},
+    "Firma 3": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 15, "miktar": 150, "lead_time_days": random.randint(0, 15)},
+    "Firma 4": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 10, "miktar": 300, "lead_time_days": random.randint(0, 15)},
+    "Firma 5": {"sektor": "Plastik Enjeksiyon", "atik": "HDPE", "fiyat": 12, "miktar": 250, "lead_time_days": random.randint(0, 15)},
+    "Firma 6": {"sektor": "Makine İmalat", "atik": "Elektronik Atıklar", "fiyat": 20, "miktar": 100, "lead_time_days": random.randint(0, 15)},
+    "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200, "lead_time_days": random.randint(0, 15)},
+    "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400, "lead_time_days": random.randint(0, 15)},
+    # Yeni eklenen firmalar:
+    "Firma 9": {"sektor": "Gıda", "atik": "Yemek Artıkları", "fiyat": 2, "miktar": 250, "lead_time_days": random.randint(0, 15)},
+    "Firma 10": {"sektor": "Kağıt & Ambalaj", "atik": "Karton", "fiyat": 1.2, "miktar": 650, "lead_time_days": random.randint(0, 15)},
+}
+
+# Güncelleme: yeni sektörler eklendi. "Yem ve Mama Üretim" sektörü atık üretmiyor (boş liste).
+turikler = {
+    "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
+    "Plastik Enjeksiyon": ["PT", "HDPE"],
+    "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"],
+    "Gıda": ["Meyve-Sebze Posası", "Yemek Artıkları"],
+    "Yem ve Mama Üretim": [],  # Bu sektör atık üretmiyor / alıcı seçeneği değil
+    "Kağıt & Ambalaj": ["Karton", "Endüstriyel Kağıt Atığı"]
+}
+
+firma_koordinatlari = {
+    "Firma 1": (41.0105, 39.7266),
+    "Firma 2": (40.9900, 39.7200),
+    "Firma 3": (41.0200, 39.7400),
+    "Firma 4": (41.0005, 39.7050),
+    "Firma 5": (41.0150, 39.7300),
+    "Firma 6": (41.0250, 39.7350),
+    "Firma 7": (41.0300, 39.7400),
+    "Firma 8": (41.0350, 39.7450),
+    # Yeni firmalar için koordinatlar
+    "Firma 9": (41.0400, 39.7500),
+    "Firma 10": (41.0450, 39.7550),
+}
+
 excel_path = "kayitlar.xlsx"
 if "excel_data" not in st.session_state:
     if os.path.exists(excel_path):
@@ -363,75 +435,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Başlık
-st.title("Kaizuna: Sanayide Atığı Değere Dönüştüren Dijital Platform")
-st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
-st.write("""
-🍃 Endüstriyel simbiyoz, bir üretim sürecinde açığa çıkan atık veya yan ürünlerin başka bir üretim sürecinde girdi olarak kullanılmasıdır.
-Bu yaklaşım, kaynakların daha verimli kullanılmasını sağlayarak çevresel faydalar sunar ve ekonomik tasarruflar yaratır.
-Arayüzümüz firmaların atık ürünlerini en uygun maliyetle paylaşabileceği bir platform sunar.✨
-""")
-
-# Vizyon ve Misyon bölümü (kullanıcının verdiği metin, emoji destekli)
-st.markdown("""
-🌱 **Vizyonumuz**
-
-♻️Sanayide atığın değer kazandığı, işletmelerin birlikte büyüdüğü bir gelecek kurmak istiyoruz.  
-Bizim için sürdürülebilirlik sadece bir hedef değil — yeni bir iş yapma biçimi.  
-Kaynakların paylaşıldığı, çevrenin korunduğu ve herkesin kazandığı bir endüstriyel simbiyoz ağı oluşturmayı hayal ediyoruz.✨
-
-🌱 **Misyonumuz**
-
-🤝Farklı sektörlerdeki firmaları bir araya getirip, birinin atığını diğerinin hammaddesine dönüştürüyoruz.  
-Veri odaklı analizlerle doğru eşleşmeleri yapıyor, israfı azaltırken verimliliği artırıyoruz.  
-Amacımız, sanayiye hem çevresel hem ekonomik anlamda değer katmak — yani sürdürülebilirliği işin merkezine taşımak.  
-Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüştürüyoruz. 🌍🔄
-""")
-
-st.image(
-    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/endustrialsymbiozis.png",
-    caption="Örnek Endüstriyel Simbiyoz Ağı 🌍",
-    use_container_width=True
 )
-# -------------------- SABİT VERİLER ----------------------
-# Mevcut firmalara rastgele temin süresi (0-15 gün) atıyoruz
-varsayilan_firmalar = {
-    "Firma 1": {"sektor": "Demir-Çelik", "atik": "Metal Talaşı", "fiyat": 5, "miktar": 100, "lead_time_days": random.randint(0, 15)},
-    "Firma 2": {"sektor": "Demir-Çelik", "atik": "Çelik Parçaları", "fiyat": 4, "miktar": 200, "lead_time_days": random.randint(0, 15)},
-    "Firma 3": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 15, "miktar": 150, "lead_time_days": random.randint(0, 15)},
-    "Firma 4": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 10, "miktar": 300, "lead_time_days": random.randint(0, 15)},
-    "Firma 5": {"sektor": "Plastik Enjeksiyon", "atik": "HDPE", "fiyat": 12, "miktar": 250, "lead_time_days": random.randint(0, 15)},
-    "Firma 6": {"sektor": "Makine İmalat", "atik": "Elektronik Atıklar", "fiyat": 20, "miktar": 100, "lead_time_days": random.randint(0, 15)},
-    "Firma 7": {"sektor": "Makine İmalat", "atik": "Makine Parçaları", "fiyat": 18, "miktar": 200, "lead_time_days": random.randint(0, 15)},
-    "Firma 8": {"sektor": "Plastik Enjeksiyon", "atik": "PT", "fiyat": 8, "miktar": 400, "lead_time_days": random.randint(0, 15)},
-    # Yeni eklenen firmalar:
-    "Firma 9": {"sektor": "Gıda", "atik": "Yemek Artıkları", "fiyat": 2, "miktar": 250, "lead_time_days": random.randint(0, 15)},
-    "Firma 10": {"sektor": "Kağıt & Ambalaj", "atik": "Karton", "fiyat": 1.2, "miktar": 650, "lead_time_days": random.randint(0, 15)},
-}
-
-# Güncelleme: yeni sektörler eklendi. "Yem ve Mama Üretim" sektörü atık üretmiyor (boş liste).
-turikler = {
-    "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
-    "Plastik Enjeksiyon": ["PT", "HDPE"],
-    "Makine İmalat": ["Makine Parçaları", "Elektronik Atıklar"],
-    "Gıda": ["Meyve-Sebze Posası", "Yemek Artıkları"],
-    "Yem ve Mama Üretim": [],  # Bu sektör atık üretmiyor / alıcı seçeneği değil
-    "Kağıt & Ambalaj": ["Karton", "Endüstriyel Kağıt Atığı"]
-}
-
-firma_koordinatlari = {
-    "Firma 1": (41.0105, 39.7266),
-    "Firma 2": (40.9900, 39.7200),
-    "Firma 3": (41.0200, 39.7400),
-    "Firma 4": (41.0005, 39.7050),
-    "Firma 5": (41.0150, 39.7300),
-    "Firma 6": (41.0250, 39.7350),
-    "Firma 7": (41.0300, 39.7400),
-    "Firma 8": (41.0350, 39.7450),
-    # Yeni firmalar için koordinatlar
-    "Firma 9": (41.0400, 39.7500),
-    "Firma 10": (41.0450, 39.7550),
-}
 
 # -------------------- STATE YÖNETİMİ ----------------------
 if "firma_bilgileri" not in st.session_state:
@@ -819,6 +823,7 @@ st.markdown("""
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
 
