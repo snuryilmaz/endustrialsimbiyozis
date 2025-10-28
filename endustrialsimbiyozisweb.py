@@ -16,155 +16,7 @@ sys.path.append('./backend')
 from backend.static_data import varsayilan_firmalar, turikler, firma_koordinatlari
 from backend.optimize import optimize_waste_allocation, get_new_coordinates
 
-# --- MODERN NAVBAR & BÖLÜMLER ---
-st.markdown(
-    """
-    <style>
-    body { background: linear-gradient(180deg, #e7fbe7 0%, #d0f5db 100%);}
-    .stApp { background-color: rgba(255,255,255,0.98); }
-    .nav-bar {
-        width: 100vw;
-        background: linear-gradient(90deg, #20c997 0%, #2ecc71 100%);
-        box-shadow: 0 2px 12px rgba(32,201,151,0.08);
-        padding: 14px 0 14px 0;
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-    }
-    .nav-bar .menu {
-        display: flex;
-        justify-content: center;
-        gap: 38px;
-        font-family: Montserrat, sans-serif;
-        font-weight: 600;
-        font-size: 19px;
-    }
-    .nav-bar .menu a {
-        color: #fff;
-        text-decoration: none;
-        transition: color 0.2s;
-        padding: 2px 10px;
-        border-radius: 8px;
-    }
-    .nav-bar .menu a:hover { background: #1fa877; color: #fff;}
-    .section { margin-top: 80px; padding: 32px 0; border-radius: 24px; background: #f4fff7; box-shadow: 0 1px 5px rgba(32,201,151,0.07);}
-    .section-title { font-size: 32px; color: #20c997; font-weight: 700; margin-bottom: 18px;}
-    .section-content { font-size: 18px; color: #234b30;}
-    .subscribe-form input[type="email"] {
-        padding: 7px 12px; border: 1px solid #c2e8c2; border-radius: 8px; font-size: 17px; margin-right: 8px;
-    }
-    .subscribe-form button {
-        background: #20c997; color: #fff; border: none; border-radius: 8px; font-size: 17px; padding: 8px 18px; cursor:pointer;
-        transition: background 0.2s;
-    }
-    .subscribe-form button:hover { background: #158f6a;}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
-st.markdown("""
-<div class="nav-bar">
-    <div class="menu">
-        <a href="#hakkimizda">Hakkımızda</a>
-        <a href="#contact-us">Contact Us</a>
-        <a href="#sss">SSS</a>
-        <a href="#abone-ol">Abone Ol</a>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-st.markdown("<h1 style='color:#20c997;text-align:center;font-weight:900;'>Kaizuna: Endüstriyel Simbiyoz Platformu</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='color:#158f6a;text-align:center;'>Yeşil ve sürdürülebilir sanayi için dijital buluşma noktası</h3>", unsafe_allow_html=True)
-
-# --- Hakkımızda ---
-st.markdown("""
-<div class="section" id="hakkimizda">
-    <div class="section-title">Hakkımızda</div>
-    <div class="section-content">
-        <b>Kaizuna</b>, sanayide atığı değere dönüştüren yenilikçi bir platformdur. Amacımız, endüstriyel simbiyozu ve sürdürülebilirliği tüm işletmelere ulaştırmak.<br>
-        Firmalar arası atık alışverişini kolaylaştırıyor, ekonomik ve çevresel fayda sağlıyoruz.<br>
-        <br>
-        <b>Vizyonumuz:</b> Sanayide atığın değer kazandığı, kaynakların paylaşıldığı bir gelecek!<br>
-        <b>Misyonumuz:</b> Her işletmenin atığını, başka bir işletmenin hammaddesine dönüştürerek, israfı azaltmak.
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Contact Us ---
-st.markdown("""
-<div class="section" id="contact-us">
-    <div class="section-title">Contact Us</div>
-    <div class="section-content">
-        Bize ulaşmak için aşağıdaki kanalları kullanabilirsiniz:<br>
-        <ul>
-            <li>Email: <a href="mailto:info@kaizuna.com">info@kaizuna.com</a></li>
-            <li>Telefon: <a href="tel:+905501234567">+90 550 123 45 67</a></li>
-            <li>Adres: Yeşil Sanayi Sitesi, İstanbul</li>
-        </ul>
-        <br>
-        <b>Sosyal Medya:</b>
-        <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a> |
-        <a href="https://twitter.com/" target="_blank">Twitter</a>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- SSS ---
-st.markdown("""
-<div class="section" id="sss">
-    <div class="section-title">Sıkça Sorulan Sorular (SSS)</div>
-    <div class="section-content">
-        <b>Endüstriyel simbiyoz nedir?</b><br>
-        Bir firmanın atığının başka bir firmanın hammaddesine dönüşmesidir.<br><br>
-        <b>Platforma nasıl kayıt olurum?</b><br>
-        Sağ üstteki “Abone Ol” menüsünden email adresinizi bırakabilirsiniz.<br><br>
-        <b>Verilerim güvende mi?</b><br>
-        Evet. Tüm veri işlemleri şifreli ve KVKK’ya uygundur.<br>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- ABONE OL ---
-st.markdown("""
-<div class="section" id="abone-ol">
-    <div class="section-title">Abone Ol</div>
-    <div class="section-content">
-        <form class="subscribe-form">
-            <input type="email" name="email" placeholder="Email adresiniz">
-            <button type="submit">Abone Ol</button>
-        </form>
-        <br>
-        <small style="color:#158f6a;">Yeniliklerden ve duyurulardan haberdar olmak için abone olun!</small>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<script>
-document.querySelectorAll('.nav-bar .menu a').forEach(function(link){
-    link.addEventListener('click', function(e){
-        var id = link.getAttribute('href').substring(1);
-        var el = document.getElementById(id);
-        if(el){
-            e.preventDefault();
-            el.scrollIntoView({behavior:'smooth'});
-        }
-    });
-});
-</script>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<hr>
-<div style="text-align:center;color:#20c997;font-size:15px;">
-    Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
-</div>
-""", unsafe_allow_html=True)
-
-# --- BURADAN SONRA ESKİ KODUN DEVAM EDECEK ---
-# (sidebar, tablo, optimizasyon, grafik, excel vs.)
 
 excel_path = "kayitlar.xlsx"
 if "excel_data" not in st.session_state:
@@ -410,6 +262,157 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# --- MODERN NAVBAR & BÖLÜMLER ---
+st.markdown(
+    """
+    <style>
+    body { background: linear-gradient(180deg, #e7fbe7 0%, #d0f5db 100%);}
+    .stApp { background-color: rgba(255,255,255,0.98); }
+    .nav-bar {
+        width: 100vw;
+        background: linear-gradient(90deg, #20c997 0%, #2ecc71 100%);
+        box-shadow: 0 2px 12px rgba(32,201,151,0.08);
+        padding: 14px 0 14px 0;
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+    }
+    .nav-bar .menu {
+        display: flex;
+        justify-content: center;
+        gap: 38px;
+        font-family: Montserrat, sans-serif;
+        font-weight: 600;
+        font-size: 19px;
+    }
+    .nav-bar .menu a {
+        color: #fff;
+        text-decoration: none;
+        transition: color 0.2s;
+        padding: 2px 10px;
+        border-radius: 8px;
+    }
+    .nav-bar .menu a:hover { background: #1fa877; color: #fff;}
+    .section { margin-top: 80px; padding: 32px 0; border-radius: 24px; background: #f4fff7; box-shadow: 0 1px 5px rgba(32,201,151,0.07);}
+    .section-title { font-size: 32px; color: #20c997; font-weight: 700; margin-bottom: 18px;}
+    .section-content { font-size: 18px; color: #234b30;}
+    .subscribe-form input[type="email"] {
+        padding: 7px 12px; border: 1px solid #c2e8c2; border-radius: 8px; font-size: 17px; margin-right: 8px;
+    }
+    .subscribe-form button {
+        background: #20c997; color: #fff; border: none; border-radius: 8px; font-size: 17px; padding: 8px 18px; cursor:pointer;
+        transition: background 0.2s;
+    }
+    .subscribe-form button:hover { background: #158f6a;}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown("""
+<div class="nav-bar">
+    <div class="menu">
+        <a href="#hakkimizda">Hakkımızda</a>
+        <a href="#contact-us">Contact Us</a>
+        <a href="#sss">SSS</a>
+        <a href="#abone-ol">Abone Ol</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#20c997;text-align:center;font-weight:900;'>Kaizuna: Endüstriyel Simbiyoz Platformu</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='color:#158f6a;text-align:center;'>Yeşil ve sürdürülebilir sanayi için dijital buluşma noktası</h3>", unsafe_allow_html=True)
+
+# --- Hakkımızda ---
+st.markdown("""
+<div class="section" id="hakkimizda">
+    <div class="section-title">Hakkımızda</div>
+    <div class="section-content">
+        <b>Kaizuna</b>, sanayide atığı değere dönüştüren yenilikçi bir platformdur. Amacımız, endüstriyel simbiyozu ve sürdürülebilirliği tüm işletmelere ulaştırmak.<br>
+        Firmalar arası atık alışverişini kolaylaştırıyor, ekonomik ve çevresel fayda sağlıyoruz.<br>
+        <br>
+        <b>Vizyonumuz:</b> Sanayide atığın değer kazandığı, kaynakların paylaşıldığı bir gelecek!<br>
+        <b>Misyonumuz:</b> Her işletmenin atığını, başka bir işletmenin hammaddesine dönüştürerek, israfı azaltmak.
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- Contact Us ---
+st.markdown("""
+<div class="section" id="contact-us">
+    <div class="section-title">Contact Us</div>
+    <div class="section-content">
+        Bize ulaşmak için aşağıdaki kanalları kullanabilirsiniz:<br>
+        <ul>
+            <li>Email: <a href="mailto:info@kaizuna.com">info@kaizuna.com</a></li>
+            <li>Telefon: <a href="tel:+905501234567">+90 550 123 45 67</a></li>
+            <li>Adres: Yeşil Sanayi Sitesi, İstanbul</li>
+        </ul>
+        <br>
+        <b>Sosyal Medya:</b>
+        <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a> |
+        <a href="https://twitter.com/" target="_blank">Twitter</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- SSS ---
+st.markdown("""
+<div class="section" id="sss">
+    <div class="section-title">Sıkça Sorulan Sorular (SSS)</div>
+    <div class="section-content">
+        <b>Endüstriyel simbiyoz nedir?</b><br>
+        Bir firmanın atığının başka bir firmanın hammaddesine dönüşmesidir.<br><br>
+        <b>Platforma nasıl kayıt olurum?</b><br>
+        Sağ üstteki “Abone Ol” menüsünden email adresinizi bırakabilirsiniz.<br><br>
+        <b>Verilerim güvende mi?</b><br>
+        Evet. Tüm veri işlemleri şifreli ve KVKK’ya uygundur.<br>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- ABONE OL ---
+st.markdown("""
+<div class="section" id="abone-ol">
+    <div class="section-title">Abone Ol</div>
+    <div class="section-content">
+        <form class="subscribe-form">
+            <input type="email" name="email" placeholder="Email adresiniz">
+            <button type="submit">Abone Ol</button>
+        </form>
+        <br>
+        <small style="color:#158f6a;">Yeniliklerden ve duyurulardan haberdar olmak için abone olun!</small>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<script>
+document.querySelectorAll('.nav-bar .menu a').forEach(function(link){
+    link.addEventListener('click', function(e){
+        var id = link.getAttribute('href').substring(1);
+        var el = document.getElementById(id);
+        if(el){
+            e.preventDefault();
+            el.scrollIntoView({behavior:'smooth'});
+        }
+    });
+});
+</script>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<hr>
+<div style="text-align:center;color:#20c997;font-size:15px;">
+    Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
+</div>
+""", unsafe_allow_html=True)
+
+# --- BURADAN SONRA ESKİ KODUN DEVAM EDECEK ---
+# (sidebar, tablo, optimizasyon, grafik, excel vs.)
+
 # Başlık
 st.title("Kaizuna: Sanayide Atığı Değere Dönüştüren Dijital Platform")
 st.subheader("🏭 Endüstriyel Simbiyoz Nedir?")
@@ -799,5 +802,6 @@ if os.path.exists(excel_path):
 #qr_buffer = io.BytesIO()
 #qr.save(qr_buffer)
 #st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
+
 
 
