@@ -5,3 +5,4 @@ networkx
 qrcode
 pulp
 openpyxl
+sqlalchemy
