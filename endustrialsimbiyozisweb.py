@@ -9,14 +9,12 @@ import os
 import random
 from datetime import date, timedelta
 
-# Modüller ve fonksiyonlar backend klasöründen import edildi
+# Backend klasöründen sabit veri ve fonksiyonları import et
 import sys
 sys.path.append('./backend')
 
-from backend.models import varsayilan_firmalar, turikler, firma_koordinatlari
+from backend.static_data import varsayilan_firmalar, turikler, firma_koordinatlari
 from backend.optimize import optimize_waste_allocation, get_new_coordinates
-
-# Excel işlemleri ve state yönetimi aynı şekilde kalabilir
 
 excel_path = "kayitlar.xlsx"
 if "excel_data" not in st.session_state:
@@ -48,9 +46,8 @@ firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 
-# (Devamındaki Streamlit kodları ve arayüz aynı şekilde kalabilir)
-
-# Artık optimize fonksiyonu ve sabit veri yapısı backend klasöründen çağrılıyor!
-# Eklediğin yeni firma ve koordinat fonksiyonları da optimize.py'den import edilir.
+# (Aşağıda kendi Streamlit uygulama kodunu olduğu gibi kullanabilirsin)
+# ... Streamlit arayüzü, optimize, tablo, grafik vb. kodlar burada devam edecek ...
 
 # ... (Geri kalan Streamlit kodunu olduğu gibi kullanabilirsin, sadece optimize fonksiyonunu ve sabit veri yapılarını artık backend'den çağırıyorsun.)
+
