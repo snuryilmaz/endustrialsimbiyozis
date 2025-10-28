@@ -8,7 +8,8 @@ import math
 import os
 import random
 from datetime import date, timedelta
-
+import streamlit as st
+st.title("Başarılı! Streamlit uygulaman yüklendi.")
 # Backend klasöründen sabit veri ve fonksiyonları import et
 import sys
 sys.path.append('./backend')
@@ -50,4 +51,5 @@ varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
 # ... Streamlit arayüzü, optimize, tablo, grafik vb. kodlar burada devam edecek ...
 
 # ... (Geri kalan Streamlit kodunu olduğu gibi kullanabilirsin, sadece optimize fonksiyonunu ve sabit veri yapılarını artık backend'den çağırıyorsun.)
+
 
