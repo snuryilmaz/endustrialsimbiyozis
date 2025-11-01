@@ -566,13 +566,6 @@ df = pd.DataFrame(firma_bilgileri_tablo)
 st.subheader("Firma Bilgileri")
 st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar, fiyat ve temin süresi bilgilerini göstermektedir.")
 st.dataframe(df)
-
-st.image(
-    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/geridonusumorani.png",
-    caption="Hammadde Dönüşüm Oraları",
-    use_container_width=True
-)
-
 # -------------------- MODEL & ŞEBEKE ----------------------
 sonuc, toplam_maliyet, toplam_alinan = None, 0, 0
 alici_koordinati = None
@@ -804,6 +797,7 @@ st.markdown("""
     Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
