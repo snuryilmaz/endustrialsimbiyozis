@@ -187,7 +187,6 @@ varsayilan_firmalar = {
     "Firma 9": {"sektor": "Gıda", "atik": "Yemek Artıkları", "fiyat": 2, "miktar": 250, "lead_time_days": random.randint(0, 15)},
     "Firma 10": {"sektor": "Kağıt & Ambalaj", "atik": "Karton", "fiyat": 1.2, "miktar": 650, "lead_time_days": random.randint(0, 15)},
 }
-
 turikler = {
     "Demir-Çelik": ["Metal Talaşı", "Çelik Parçaları"],
     "Plastik Enjeksiyon": ["PT", "HDPE"],
@@ -196,7 +195,6 @@ turikler = {
     "Yem ve Mama Üretim": [],
     "Kağıt & Ambalaj": ["Karton", "Endüstriyel Kağıt Atığı"]
 }
-
 firma_koordinatlari = {
     "Firma 1": (41.0105, 39.7266),
     "Firma 2": (40.9900, 39.7200),
@@ -218,27 +216,23 @@ if "excel_data" not in st.session_state:
         st.session_state["excel_data"] = pd.DataFrame(
             columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"]
         )
-
 TURKISH_MONTHS = [
     "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
 ]
-
 def format_tarih(d: date):
     ay_adi = TURKISH_MONTHS[d.month - 1]
     return f"{d.day} {ay_adi} {d.year}"
-
 if "firma_bilgileri" not in st.session_state:
     st.session_state["firma_bilgileri"] = {k: v.copy() for k, v in varsayilan_firmalar.items()}
 if "yeni_firmalar" not in st.session_state:
     st.session_state["yeni_firmalar"] = []
 if "firma_koordinatlari" not in st.session_state:
     st.session_state["firma_koordinatlari"] = firma_koordinatlari.copy()
-
 firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
-
+# --- FONKSİYONLAR ---
 def get_new_coordinates(existing_coords, num_new_firms):
     center_lat = sum([coord[0] for coord in existing_coords]) / len(existing_coords)
     center_lon = sum([coord[1] for coord in existing_coords]) / len(existing_coords)
@@ -282,56 +276,48 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
         kalan -= alinacak
         if kalan <= 0:
             break
-
     if toplam_alinan == 0:
         return None, 0, 0
-
     return eslesmeler, toplam_maliyet, toplam_alinan
 
 # -------------------- SIDEBAR ----------------------
 with st.sidebar:
     st.title("🌾 Kullanıcı Seçimi")
-
     secim = st.radio(
         "⚙️Ne yapmak istiyorsunuz?",
         ["Ürün almak istiyorum", "Satıcı kaydı yapmak istiyorum"],
         index=0
     )
-
     if secim == "Ürün almak istiyorum":
         st.header("Alıcı Bilgileri")
         ad_soyad = st.text_input("Ad Soyad")
         sirket_adi = st.text_input("Şirket Adı")
         sektor = st.selectbox("Şirketin Sektörü", list(turikler.keys()))
         atik_options = turikler.get(sektor, [])
-        if atik_options:
-            atik_turu = st.selectbox("Atık Türü", atik_options)
-        else:
+        atik_turu = st.selectbox("Atık Türü", atik_options) if atik_options else None
+        if not atik_options:
             st.info("Seçtiğiniz sektör atık üretmiyor veya alım için uygun atık türü yok.")
-            atik_turu = None
-
         miktar = st.number_input("Alınacak Miktar (kg)", min_value=1, max_value=10000, value=100)
-        
         max_lon = max([koor[1] for koor in firma_koordinatlari.values()])
         min_lon = min([koor[1] for koor in firma_koordinatlari.values()])
         mean_lat = sum([koor[0] for koor in firma_koordinatlari.values()]) / len(firma_koordinatlari)
         alici_koordinati = (mean_lat, (max_lon + min_lon) / 2)
         uygulama_butonu = st.button("Uygulamayı Çalıştır")
+        
     elif secim == "Satıcı kaydı yapmak istiyorum":
         st.header("Satıcı Kaydı")
         firma_adi = st.text_input("Firma Adı")
         sektor_sec = st.selectbox("Sektör", list(turikler.keys()))
         atik_secenekleri = turikler.get(sektor_sec, [])
-        if atik_secenekleri:
-            atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri)
-        else:
+        atik_turu = st.selectbox("Satmak istediğiniz Atık Ürün", atik_secenekleri) if atik_secenekleri else None
+        if not atik_secenekleri:
             st.info("Bu sektör atık üretmiyor. Satıcı kaydı atık bildirimi gerektirmez.")
-            atik_turu = None
-
+            
         miktar = st.number_input("Satmak istediğiniz ürün miktarı (kg)", min_value=1)
         fiyat = st.number_input("Ürünü ne kadara satmak istiyorsunuz? (TL/kg)", min_value=0.0)
         temin_suresi = st.number_input("Bu ürünü kaç günde temin edebilirsiniz? (gün) (zorunlu)", min_value=0, value=15)
         kaydet_buton = st.button("KAYDIMI TAMAMLA")
+       
         if kaydet_buton and firma_adi:
             yeni_id = firma_adi.strip()
             if yeni_id not in firma_bilgileri:
@@ -339,7 +325,6 @@ with st.sidebar:
                 yeni_koordinatlar = get_new_coordinates(mevcut_koordinatlar, num_new_firms=1)
                 gps = yeni_koordinatlar[0]
                 firma_koordinatlari[yeni_id] = gps
-
                 firma_bilgileri[yeni_id] = {
                     "sektor": sektor_sec,
                     "atik": atik_turu,
@@ -593,6 +578,7 @@ st.markdown("""
     Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
