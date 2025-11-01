@@ -1,4 +1,4 @@
-import streamlit as st
+"import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,7 +8,6 @@ import math
 import os
 import random
 from datetime import date, timedelta
-
 # --- ARAYÜZ STİLİ ---
 st.markdown(
     """
@@ -242,8 +241,6 @@ if "firma_koordinatlari" not in st.session_state:
 firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
-
-
 excel_path = "kayitlar.xlsx"
 if "excel_data" not in st.session_state:
     if os.path.exists(excel_path):
@@ -257,7 +254,6 @@ TURKISH_MONTHS = [
     "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
 ]
-
 def format_tarih(d: date):
     ay_adi = TURKISH_MONTHS[d.month - 1]
     return f"{d.day} {ay_adi} {d.year}"
@@ -273,18 +269,8 @@ if "firma_koordinatlari" not in st.session_state:
 firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
-
-import streamlit as st
-import networkx as nx
-import matplotlib.pyplot as plt
-import pandas as pd
-import qrcode
-import io
-import math
-import os  # <-- BU ÖNEMLİ EXCEL İÇİN!!!
 import random
 from datetime import date, timedelta
-
 # Excel dosyasını başta bir kere kontrol et ve oluştur
 excel_path = "kayitlar.xlsx"
 if "excel_data" not in st.session_state:
@@ -296,17 +282,14 @@ if "excel_data" not in st.session_state:
         st.session_state["excel_data"] = pd.DataFrame(
             columns=["Islem Tipi", "Firma Adı", "Sektör", "Atık Türü", "Miktar", "Fiyat", "Kullanıcı Adı"]
         )
-
 # Türkçe ay isimleri (tarih formatlamak için)
 TURKISH_MONTHS = [
     "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
 ]
-
 def format_tarih(d: date):
     ay_adi = TURKISH_MONTHS[d.month - 1]
     return f"{d.day} {ay_adi} {d.year}"
-
 # -------------------------------------------------------------------------
 def get_new_coordinates(existing_coords, num_new_firms):
     """
@@ -328,7 +311,6 @@ def get_new_coordinates(existing_coords, num_new_firms):
         new_lon = center_lon + radius * math.cos(angle)
         new_coords.append((new_lat, new_lon))
     return new_coords
-
 # ------------------ OPTİMİZASYON FONKSİYONU ------------------
 def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
     uygunlar = []
@@ -341,7 +323,6 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
                 "Miktar": f_bilgi["miktar"]
             })
     uygunlar.sort(key=lambda x: x["Fiyat"])
-
     kalan = talep_miktari
     toplam_maliyet = 0
     toplam_alinan = 0
@@ -367,7 +348,6 @@ def optimize_waste_allocation(firmalar, atik_turu, talep_miktari):
         return None, 0, 0
 
     return eslesmeler, toplam_maliyet, toplam_alinan
-
 # -------------------- STİL ----------------------
 st.markdown(
     """
@@ -458,8 +438,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
 # -------------------- STATE YÖNETİMİ ----------------------
 if "firma_bilgileri" not in st.session_state:
     # kopyalayarak session'a al (lead_time_days ile birlikte)
@@ -472,7 +450,6 @@ if "firma_koordinatlari" not in st.session_state:
 firma_bilgileri = st.session_state["firma_bilgileri"]
 firma_koordinatlari = st.session_state["firma_koordinatlari"]
 varsayilan_firma_isimleri = list(varsayilan_firmalar.keys())
-
 # -------------------- SIDEBAR ----------------------
 with st.sidebar:
     st.title("🌾 Kullanıcı Seçimi")
@@ -507,8 +484,6 @@ with st.sidebar:
         # Koordinatı kullanıcıya sadece bilgi olarak göster
         #st.info(f"Alıcı noktası otomatik olarak {alici_koordinati[0]:.5f}, {alici_koordinati[1]:.5f} koordinatında bulundu.")
         uygulama_butonu = st.button("Uygulamayı Çalıştır")
-
-
     elif secim == "Satıcı kaydı yapmak istiyorum":
         st.header("Satıcı Kaydı")
         firma_adi = st.text_input("Firma Adı")
@@ -581,7 +556,6 @@ with st.sidebar:
                 st.success(f"{silinecek_firma} başarıyla silindi!")
         else:
             st.info("Silinebilecek ek firma yok.")
-
 # -------------------- FİRMA TABLOSU ----------------------
 firma_bilgileri_tablo = {
     "Firma Adı": list(firma_bilgileri.keys()),
@@ -595,11 +569,9 @@ df = pd.DataFrame(firma_bilgileri_tablo)
 st.subheader("Firma Bilgileri")
 st.write("Aşağıdaki tablo, sistemde kayıtlı firmaların sektör, ürün, miktar, fiyat ve temin süresi bilgilerini göstermektedir.")
 st.dataframe(df)
-
 # -------------------- MODEL & ŞEBEKE ----------------------
 sonuc, toplam_maliyet, toplam_alinan = None, 0, 0
 alici_koordinati = None
-
 if secim == "Ürün almak istiyorum":
     # Alıcı koordinatı ve uygulama butonu yukarıda tanımlı
     if 'uygulama_butonu' in locals() and uygulama_butonu:
@@ -640,9 +612,7 @@ if secim == "Ürün almak istiyorum":
                 # Sonuç Tablosu
                 st.write("**Satın Alım Dağılımı:**")
                 st.dataframe(pd.DataFrame(sonuc))
-
 # -------------------- ŞEBEKE GRAFİĞİ ----------------------
-
 # Şebeke grafiği yalnızca alım işlemi tamamlandıysa gösterilecek
 if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_alinan > 0:
     # ---------- Yeni kısım: satıcı bilgilendirmilerini grafiğin üzerinde göster ----------
@@ -658,7 +628,6 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
         lead = firma.get("lead_time_days", None)
 
         remaining_after = max(0, remaining - allocated)
-
         # Temel ifade: firma stokunu, ve bu sipariş için göndereceği miktarı belirt
         temel = f"{src} — Elimizde {firma_stok} kg hazır; bu sipariş için {allocated} kg göndereceğiz."
 
@@ -681,7 +650,6 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
 
         # kalan ihtiyacı sırayla güncelle
         remaining = remaining_after
-
     # -------------------------------------------------------------------
     st.header("Şebeke Grafiği")
 
@@ -724,7 +692,6 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
         "Yem ve Mama Üretim": "#FFE0B2",
         "Kağıt & Ambalaj": "#FFF9C4"
     }
-
     # Düğüm renklerini ve boyutlarını ayarla
     for node in grafik.nodes:
         if node == "Siz":
@@ -734,7 +701,6 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
             sektor = firma_bilgileri[node]["sektor"] if node in firma_bilgileri else "Bilinmiyor"
             node_colors.append(sector_colors.get(sektor, "blue"))  # Sektöre göre renk
             node_sizes.append(2000)  # Gönderici düğümleri daha küçük
-
     # Düğüm ve kenarları çiz
     pos = nx.get_node_attributes(grafik, 'pos')
     # Eksik pozisyonlar için varsayılan koordinat atanması
@@ -743,7 +709,6 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
         st.warning(f"{node} düğümü için koordinat bulunamadı. Varsayılan (0, 0) koordinatı atanıyor.")
         pos[node] = (0, 0)  # Varsayılan koordinat (0, 0)
     edge_labels = nx.get_edge_attributes(grafik, 'label')
-
     nx.draw(
         grafik,
         pos,
@@ -760,7 +725,6 @@ if secim == "Ürün almak istiyorum" and uygulama_butonu and sonuc and toplam_al
     plt.axis('off')
     st.pyplot(plt)
     plt.clf()
-
 # GRAFİK SONRASI EXCEL İNDİRME BUTONU
 st.info("Aşağıdaki butona tıklayarak tüm işlem geçmişinizi Excel dosyası olarak indirebilirsiniz.")
 if os.path.exists(excel_path):
@@ -772,7 +736,6 @@ if os.path.exists(excel_path):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download-excel"
         )
-
 # --- EN ALTA FOOTER KUTULARI ---
 st.markdown("""
 <div class="section-footer" id="hakkimizda">
@@ -830,7 +793,6 @@ document.querySelectorAll('.nav-bar .menu a').forEach(function(link){
 });
 </script>
 """, unsafe_allow_html=True)
-
 # --- Footer yazısı ---
 st.markdown("""
 <hr>
@@ -839,13 +801,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Not: "Çalışılan 8 OSB firmasının konumları" görseli isteğiniz doğrultusunda kaldırıldı.
-# -------------------- QR KODU HER ZAMAN GÖSTER ----------------------
-#qr_link = "https://endustrialsimbiyrazils/snuryilmazktu.streamlit.app/"
-#qr = qrcode.make(qr_link)
-#qr_buffer = io.BytesIO()
-#qr.save(qr_buffer)
-#st.image(qr_buffer, caption=f"Platforma Hızlı Erişim için QR Kod ({qr_link})", use_container_width=True)
 
 
 
