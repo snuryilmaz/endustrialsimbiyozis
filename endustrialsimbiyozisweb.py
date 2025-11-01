@@ -1,3 +1,4 @@
+import streamlit as st 
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -799,6 +800,7 @@ st.markdown("""
     Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
