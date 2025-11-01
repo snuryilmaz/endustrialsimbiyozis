@@ -430,7 +430,7 @@ st.markdown(
 st.markdown(
     """
     <div class="logo-container">
-        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/streamlitLogo.png" alt="Logo">
+        <img src="https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/kaizunaLogo.png" alt="Logo">
     </div>
     """,
     unsafe_allow_html=True
@@ -797,6 +797,7 @@ st.markdown("""
     Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
