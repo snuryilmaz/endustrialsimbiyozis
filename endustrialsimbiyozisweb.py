@@ -173,9 +173,8 @@ Kısacası, biz endüstriyel simbiyozu sadece anlatmıyoruz; gerçeğe dönüşt
 """)
 
 st.video("videois.mp4", format="video/mp4")
-st.caption("Örnek Endüstriyel Simbiyoz Video 🌍")
 st.image(
-    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/hammaddedonusum.png",
+    "https://raw.githubusercontent.com/snuryilmaz/endustrialsimbiyozis/main/geridonusumorani.png",
     caption="Hammadde Dönüşümü",
     use_container_width=True
 )
@@ -802,6 +801,7 @@ st.markdown("""
     Kaizuna © 2025 | Yeşil Sanayi için Dijital Dönüşüm
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
